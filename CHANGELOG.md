@@ -9,7 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `SpringLikeBanner` function that generates a large ASCII-art wordmark from
+  `ServiceName`, inspired by Spring Boot startup banners. No external
+  dependencies; uses a built-in 5-row block font for A-Z, 0-9, `-`, `_`.
+- `BoxBanner` function — the previous box-style banner extracted as a named
+  public function.
+- `Options.BannerStyle` field: `"spring"` (default) for the new wordmark
+  style, `"box"` for the legacy box style.
+- `Options.BannerWidth` field: when > 0, hard-cuts every banner line to that
+  maximum width.
+- Tests for `SpringLikeBanner`, `BoxBanner`, `BannerStyle`, `BannerWidth`,
+  name normalization, and Unicode/edge-case input safety.
+
 ### Changed
+
+- `DefaultBanner` now returns a Spring Boot–style wordmark banner instead of
+  the box banner. Use `BoxBanner` or `BannerStyle: "box"` for the old style.
+- Default banner style changed from box to `"spring"`.
 
 ### Fixed
 

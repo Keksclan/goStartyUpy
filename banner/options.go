@@ -28,4 +28,11 @@ type Options struct {
 	// box and the default separator line. Use this when the output terminal
 	// does not support Unicode box-drawing characters.
 	ASCIIOnly bool
+	// BannerStyle selects the auto-generated banner style when Banner is
+	// empty. Supported values: "spring" (default), "box". When Banner is
+	// set, this field is ignored and the banner is treated as raw text.
+	BannerStyle string
+	// BannerWidth is the optional maximum line width. Lines longer than
+	// this value are hard-cut. A value of 0 (default) means no clamping.
+	BannerWidth int
 }

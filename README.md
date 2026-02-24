@@ -9,8 +9,9 @@ deterministic startup message with optional dependency verification.
 
 - **Build metadata injection** — inject Version, BuildTime, Commit, Branch,
   and Dirty flag via `-ldflags` at compile time.
-- **Customizable banner** — auto-generated box banner from `ServiceName`,
-  or provide your own multiline ASCII art.
+- **Customizable banner** — auto-generated Spring Boot–style ASCII-art
+  wordmark from `ServiceName` (default), classic box style, or your own
+  multiline ASCII art.
 - **ASCII fallback mode** — `ASCIIOnly: true` replaces Unicode box-drawing
   characters with plain ASCII for restricted terminals.
 - **Startup checks** — verify SQL databases, TCP endpoints, HTTP services,
@@ -139,12 +140,51 @@ LDFLAGS="$(./scripts/ldflags.sh)" go build -ldflags "$LDFLAGS" ./cmd/myservice
 MODULE=github.com/my/repo ./scripts/ldflags.sh
 ```
 
-## Custom Banner
+## Banner Styles
 
-### Auto-generated banner (default)
+The library supports multiple banner styles controlled by `Options.BannerStyle`.
+When `Options.Banner` is empty, the style determines the auto-generated banner.
+When `Options.Banner` is set, the value is used as-is ("raw" mode) and
+`BannerStyle` is ignored.
 
-When `Options.Banner` is empty the library generates a box banner from
-`Options.ServiceName` automatically:
+### Spring style (default)
+
+`BannerStyle: "spring"` (or empty, which defaults to `"spring"`) generates a
+large ASCII-art wordmark derived from `ServiceName`, followed by a tagline.
+This is inspired by the Spring Boot startup banner structure — no external
+dependencies, fully deterministic, built-in block font.
+
+```go
+opts := banner.Options{
+    ServiceName: "my-svc",
+    // BannerStyle defaults to "spring"
+}
+```
+
+Example output (shape):
+
+```
+M   M Y   Y        SSS  V   V  CCCC
+MM MM  Y Y        S     V   V C
+M M M   Y   -----  SSS  V   V C
+M   M   Y             S  V V  C
+M   M   Y          SSS    V    CCCC
+
+ :: goStartyUpy :: (dev)
+```
+
+You can also call `banner.SpringLikeBanner(name, asciiOnly)` directly.
+
+### Box style
+
+`BannerStyle: "box"` generates the classic box banner:
+
+```go
+opts := banner.Options{
+    ServiceName: "my-service",
+    BannerStyle: "box",
+}
+```
 
 ```
 ┌───────────────────────────┐
@@ -152,17 +192,10 @@ When `Options.Banner` is empty the library generates a box banner from
 └───────────────────────────┘
 ```
 
-Set `Options.ASCIIOnly = true` to use plain ASCII:
+Set `Options.ASCIIOnly = true` to use plain ASCII box characters (`+`, `-`, `|`).
+You can also call `banner.BoxBanner(name, asciiOnly)` directly.
 
-```
-+---------------------------+
-|        MY-SERVICE         |
-+---------------------------+
-```
-
-You can also call `banner.DefaultBanner(name, asciiOnly)` directly.
-
-### Custom banner
+### Custom banner (raw)
 
 Provide your own multiline ASCII art via `Options.Banner`:
 
@@ -177,6 +210,18 @@ opts := banner.Options{
 ```
 
 When `Banner` is set the auto-generation is skipped entirely.
+
+### Banner width clamping
+
+Set `Options.BannerWidth` to a positive integer to hard-cut every banner line
+to that maximum width. A value of `0` (default) means no clamping.
+
+```go
+opts := banner.Options{
+    ServiceName: "my-service",
+    BannerWidth: 60,
+}
+```
 
 ## Checks System
 

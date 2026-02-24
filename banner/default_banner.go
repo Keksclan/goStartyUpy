@@ -2,11 +2,54 @@ package banner
 
 import "strings"
 
-// DefaultBanner generates a simple box banner from the given service name.
+// resolveBanner selects the banner art based on Options. If opts.Banner is
+// set it is used as-is (raw). Otherwise the BannerStyle field controls the
+// generator: "spring" (default) uses SpringLikeBanner, "box" uses BoxBanner.
+// If BannerWidth > 0 every line is hard-cut to that width.
+func resolveBanner(opts Options) string {
+	var art string
+	if opts.Banner != "" {
+		art = opts.Banner
+	} else {
+		style := opts.BannerStyle
+		if style == "" {
+			style = "spring"
+		}
+		switch style {
+		case "box":
+			art = BoxBanner(opts.ServiceName, opts.ASCIIOnly)
+		default: // "spring"
+			art = SpringLikeBanner(opts.ServiceName, opts.ASCIIOnly)
+		}
+	}
+	if opts.BannerWidth > 0 {
+		art = clampLines(art, opts.BannerWidth)
+	}
+	return art
+}
+
+// clampLines hard-cuts every line in s to at most width characters.
+func clampLines(s string, width int) string {
+	lines := strings.Split(s, "\n")
+	for i, line := range lines {
+		if len(line) > width {
+			lines[i] = line[:width]
+		}
+	}
+	return strings.Join(lines, "\n")
+}
+
+// DefaultBanner generates a startup banner from the service name using the
+// default style ("spring"). For the legacy box style use BoxBanner.
+func DefaultBanner(serviceName string, asciiOnly bool) string {
+	return SpringLikeBanner(serviceName, asciiOnly)
+}
+
+// BoxBanner generates a simple box banner from the given service name.
 // If serviceName is empty, "SERVICE" is used. When asciiOnly is true the box
 // is drawn with plain ASCII characters (+, -, |); otherwise Unicode
 // box-drawing characters (┌, ─, ┐, │, └, ┘) are used.
-func DefaultBanner(serviceName string, asciiOnly bool) string {
+func BoxBanner(serviceName string, asciiOnly bool) string {
 	if serviceName == "" {
 		serviceName = "SERVICE"
 	}

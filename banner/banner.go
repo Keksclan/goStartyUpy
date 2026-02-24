@@ -11,18 +11,6 @@ import (
 	"maps"
 )
 
-// defaultBanner is the built-in ASCII art shown when Options.Banner is empty.
-const defaultBanner = `
-   _____ _                 _         _    _
-  / ____| |               | |       | |  | |
- | (___ | |_ __ _ _ __ | |_ _   _| |  | |_ __  _   _
-  \___ \| __/ _' | '__| __| | | | |  | | '_ \| | | |
-  ____) | || (_| | |  | |_| |_| | |__| | |_) | |_| |
- |_____/ \__\__,_|_|   \__|\__, |\____/| .__/ \__, |
-                             __/ |      | |     __/ |
-                            |___/       |_|    |___/
-`
-
 // defaultSeparator is a Unicode box-drawing line used between banner and info.
 const defaultSeparator = "════════════════════════════════════════════════════════════"
 
@@ -40,10 +28,7 @@ func RenderWithChecks(opts Options, info BuildInfo, results []checks.Result) str
 	c := opts.Color
 
 	// --- banner art ---
-	art := opts.Banner
-	if art == "" {
-		art = DefaultBanner(opts.ServiceName, opts.ASCIIOnly)
-	}
+	art := resolveBanner(opts)
 	// Ensure exactly one trailing newline after the art block.
 	b.WriteString(colorize(strings.TrimRight(art, "\n"), ansiCyan+ansiBold, c))
 	b.WriteByte('\n')
