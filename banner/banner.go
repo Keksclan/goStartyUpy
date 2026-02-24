@@ -42,7 +42,7 @@ func RenderWithChecks(opts Options, info BuildInfo, results []checks.Result) str
 	// --- banner art ---
 	art := opts.Banner
 	if art == "" {
-		art = defaultBanner
+		art = DefaultBanner(opts.ServiceName, opts.ASCIIOnly)
 	}
 	// Ensure exactly one trailing newline after the art block.
 	b.WriteString(colorize(strings.TrimRight(art, "\n"), ansiCyan+ansiBold, c))
@@ -51,7 +51,11 @@ func RenderWithChecks(opts Options, info BuildInfo, results []checks.Result) str
 	// --- separator ---
 	sep := opts.Separator
 	if sep == "" {
-		sep = defaultSeparator
+		if opts.ASCIIOnly {
+			sep = asciiSeparator
+		} else {
+			sep = defaultSeparator
+		}
 	}
 	b.WriteString(colorize(sep, ansiDim, c))
 	b.WriteByte('\n')

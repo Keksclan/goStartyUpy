@@ -1,11 +1,16 @@
 // Command example demonstrates how to use goStartyUpy to print a startup
 // banner and run optional health checks.
+//
+// By default the banner is auto-generated from ServiceName. Set the
+// environment variable CUSTOM_BANNER=1 to see an explicitly provided banner
+// instead.
 package main
 
 import (
 	"context"
 	"database/sql"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/keksclan/goStartyUpy/banner"
@@ -24,6 +29,15 @@ func main() {
 			"gRPC":   ":9090",
 			"Region": "eu-central-1",
 		},
+	}
+
+	// When CUSTOM_BANNER=1 is set, use an explicitly provided banner string.
+	// Otherwise the banner is auto-generated from ServiceName.
+	if os.Getenv("CUSTOM_BANNER") == "1" {
+		opts.Banner = `
+   ╔═══════════════════════════════════╗
+   ║     ★  MY AWESOME SERVICE  ★     ║
+   ╚═══════════════════════════════════╝`
 	}
 
 	info := banner.CurrentBuildInfo()

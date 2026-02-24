@@ -24,4 +24,8 @@ type Options struct {
 	// when writing to a terminal that supports colors. When false (default),
 	// the output is plain text with no escape sequences.
 	Color bool
+	// ASCIIOnly forces plain ASCII characters for the auto-generated banner
+	// box and the default separator line. Use this when the output terminal
+	// does not support Unicode box-drawing characters.
+	ASCIIOnly bool
 }

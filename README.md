@@ -5,11 +5,13 @@ A zero-dependency Go library that generates a production-ready startup banner wi
 ## Features
 
 - **Startup banner** with ASCII art, build metadata, and runtime details.
+- **Auto-generated banner** from `ServiceName` when no custom banner is set.
 - **Startup checks** – verify databases, TCP endpoints, HTTP services, and Redis before accepting traffic.
 - **No external dependencies** – standard library only.
 - **Never panics** – all errors are captured and returned as structured results.
 - **Deterministic & testable** – stable output ordering, no randomness.
 - **Optional ANSI colors** – set `Color: true` for colorized terminal output; plain text by default.
+- **ASCII-only mode** – set `ASCIIOnly: true` to avoid Unicode box-drawing characters.
 
 ## Quickstart
 
@@ -37,16 +39,89 @@ func main() {
 }
 ```
 
-## Build with ldflags
+## Banner Customization
+
+### Auto-generated banner (default)
+
+When `Options.Banner` is empty the library generates a box banner from
+`Options.ServiceName` automatically:
+
+```
+┌───────────────────────────┐
+│        MY-SERVICE         │
+└───────────────────────────┘
+```
+
+Set `Options.ASCIIOnly = true` to use plain ASCII characters instead of
+Unicode box-drawing:
+
+```
++---------------------------+
+|        MY-SERVICE         |
++---------------------------+
+```
+
+You can also call `banner.DefaultBanner(name, asciiOnly)` directly if you need
+the generated string elsewhere.
+
+### Custom banner
+
+Provide your own multiline ASCII art via `Options.Banner`:
+
+```go
+opts := banner.Options{
+    ServiceName: "my-service",
+    Banner: `
+   ╔═══════════════════════════════════╗
+   ║     ★  MY AWESOME SERVICE  ★     ║
+   ╚═══════════════════════════════════╝`,
+}
+```
+
+When `Banner` is set the auto-generation is skipped entirely.
+
+## Build with Makefile
+
+The included `Makefile` automatically collects git metadata and injects it via
+`-ldflags`:
+
+```bash
+make build-example   # compile example binary with metadata
+make run-example     # build and run example
+make test            # run all unit tests
+make lint            # go vet + gofmt check
+make clean           # remove build artifacts
+```
+
+For your own service you can use the generic `build` target:
+
+```bash
+make build PKG=./cmd/myservice BIN=bin/myservice
+```
+
+### Using `scripts/ldflags.sh` from another repo
+
+The helper script `scripts/ldflags.sh` prints the ldflags string so you can
+integrate it into any build system. It is POSIX sh compatible.
+
+```bash
+# From the goStartyUpy directory:
+LDFLAGS="$(./scripts/ldflags.sh)" go build -ldflags "$LDFLAGS" ./cmd/myservice
+
+# Override the module path if your import path differs:
+MODULE=github.com/my/repo ./scripts/ldflags.sh
+```
+
+## Build with ldflags (manual)
 
 Inject git metadata at build time:
 
 ```bash
 VERSION=$(git describe --tags --always --dirty)
-COMMIT=$(git rev-parse HEAD)
+COMMIT=$(git rev-parse --short HEAD)
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
-BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-DIRTY=$(test -z "$(git status --porcelain)" && echo "false" || echo "true")
+BUILD_TIME=$(date -Iseconds)
+DIRTY=$(git diff --quiet && echo "false" || echo "true")
 
 go build -ldflags "\
   -X 'github.com/keksclan/goStartyUpy/banner.Version=${VERSION}' \
@@ -129,20 +204,15 @@ type Check interface {
 ## Output Example
 
 ```
-   _____ _                 _         _    _
-  / ____| |               | |       | |  | |
- | (___ | |_ __ _ _ __ | |_ _   _| |  | |_ __  _   _
-  \___ \| __/ _' | '__| __| | | | |  | | '_ \| | | |
-  ____) | || (_| | |  | |_| |_| | |__| | |_) | |_| |
- |_____/ \__\__,_|_|   \__|\__, |\____/| .__/ \__, |
-                             __/ |      | |     __/ |
-                            |___/       |_|    |___/
+┌──────────────────────────────┐
+│        ORDER-SERVICE         │
+└──────────────────────────────┘
 ════════════════════════════════════════════════════════════
   Service     : order-service
   Environment : staging
   Version     : v1.2.3
   BuildTime   : 2026-02-24T09:00:00Z
-  Commit      : abcdef1234567890
+  Commit      : abcdef1
   Branch      : main
   Dirty       : false
   Go          : go1.26
