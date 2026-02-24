@@ -33,6 +33,16 @@ func RenderWithChecks(opts Options, info BuildInfo, results []checks.Result) str
 	b.WriteString(colorize(strings.TrimRight(art, "\n"), ansiCyan+ansiBold, c))
 	b.WriteByte('\n')
 
+	// --- classic taglines ---
+	if resolveStyle(opts) == "classic" {
+		t1, t2 := resolveTaglines(opts, info)
+		b.WriteByte('\n')
+		b.WriteString(colorize(t1, ansiYellow, c))
+		b.WriteByte('\n')
+		b.WriteString(colorize(t2, ansiDim, c))
+		b.WriteByte('\n')
+	}
+
 	// --- separator ---
 	sep := opts.Separator
 	if sep == "" {
@@ -46,8 +56,16 @@ func RenderWithChecks(opts Options, info BuildInfo, results []checks.Result) str
 	b.WriteByte('\n')
 
 	// --- key/value info lines ---
-	kvs := buildKVs(opts, info)
-	writeAligned(&b, kvs, c)
+	// In classic mode, ShowDetails (default true) controls whether the
+	// key/value section is printed.
+	showKV := true
+	if resolveStyle(opts) == "classic" && opts.ShowDetails != nil && !*opts.ShowDetails {
+		showKV = false
+	}
+	if showKV {
+		kvs := buildKVs(opts, info)
+		writeAligned(&b, kvs, c)
+	}
 
 	// --- checks section ---
 	if len(results) > 0 {
@@ -133,4 +151,47 @@ func writeAligned(b *strings.Builder, pairs []kv, color bool) {
 			p.Value,
 		)
 	}
+}
+
+// resolveStyle returns the effective banner style for the given options.
+// If opts.Banner is set (raw override), it returns "raw".
+func resolveStyle(opts Options) string {
+	if opts.Banner != "" {
+		return "raw"
+	}
+	if opts.BannerStyle == "" {
+		return "spring"
+	}
+	return opts.BannerStyle
+}
+
+// resolveTaglines computes the two tagline strings for classic-style banners.
+func resolveTaglines(opts Options, info BuildInfo) (string, string) {
+	// Tagline 1: "<ServiceName> <Version>"
+	t1 := opts.Tagline1
+	if t1 == "" {
+		svc := opts.ServiceName
+		if svc == "" {
+			svc = "SERVICE"
+		}
+		ver := info.Version
+		if ver == "" || ver == "unknown" {
+			ver = "dev"
+		}
+		t1 = svc + " " + ver
+	}
+
+	// Tagline 2: "Build: <BuildTime>  Commit: <Commit>"
+	t2 := opts.Tagline2
+	if t2 == "" {
+		t2 = "Build: " + info.BuildTime + "  Commit: " + info.Commit
+		if info.Branch != "" && info.Branch != "unknown" {
+			t2 += "  Branch: " + info.Branch
+		}
+		if info.Dirty == "true" {
+			t2 += "  Dirty: true"
+		}
+	}
+
+	return t1, t2
 }

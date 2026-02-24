@@ -4,7 +4,8 @@ import "strings"
 
 // resolveBanner selects the banner art based on Options. If opts.Banner is
 // set it is used as-is (raw). Otherwise the BannerStyle field controls the
-// generator: "spring" (default) uses SpringLikeBanner, "box" uses BoxBanner.
+// generator: "spring" (default) uses SpringLikeBanner, "classic" uses
+// ClassicLikeBanner, "box" uses BoxBanner.
 // If BannerWidth > 0 every line is hard-cut to that width.
 func resolveBanner(opts Options) string {
 	var art string
@@ -16,6 +17,8 @@ func resolveBanner(opts Options) string {
 			style = "spring"
 		}
 		switch style {
+		case "classic":
+			art = ClassicLikeBanner(opts.ServiceName, opts.ASCIIOnly)
 		case "box":
 			art = BoxBanner(opts.ServiceName, opts.ASCIIOnly)
 		default: // "spring"

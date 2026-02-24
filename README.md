@@ -10,11 +10,14 @@ deterministic startup message with optional dependency verification.
 - **Build metadata injection** — inject Version, BuildTime, Commit, Branch,
   and Dirty flag via `-ldflags` at compile time.
 - **Customizable banner** — auto-generated Spring Boot–style ASCII-art
-  wordmark from `ServiceName` (default), classic box style, or your own
-  multiline ASCII art.
+  wordmark from `ServiceName` (default), classic slash/backslash style,
+  box style, or your own multiline ASCII art.
 - **Built-in big font (no deps)** — underscore / pipe / slash style glyphs
   for A–Z, 0–9, `-`, `_`, and space. Unknown characters render as a `?`
   fallback glyph. Deterministic, zero external dependencies.
+- **Classic banner style** — a second built-in font using slashes,
+  backslashes, and underscores reminiscent of traditional Java framework
+  banners, with two configurable tagline lines below the wordmark.
 - **ASCII fallback mode** — `ASCIIOnly: true` replaces Unicode box-drawing
   characters with plain ASCII for restricted terminals.
 - **Startup checks** — verify SQL databases, TCP endpoints, HTTP services,
@@ -181,6 +184,54 @@ Example output (shape):
 ```
 
 You can also call `banner.SpringLikeBanner(name, asciiOnly)` directly.
+
+### Classic style
+
+`BannerStyle: "classic"` generates a banner using a slash / backslash /
+underscore font reminiscent of traditional Java framework startup banners.
+Two tagline lines are printed below the wordmark:
+
+- **Tagline1** — defaults to `"<ServiceName> <Version>"`.
+- **Tagline2** — defaults to `"Build: <BuildTime>  Commit: <Commit>"` with
+  optional `Branch` and `Dirty` info appended.
+
+Both taglines can be overridden via `Options.Tagline1` and `Options.Tagline2`.
+
+Supported characters: **A–Z**, **0–9**, **`-`**, **`_`**, and **space**.
+Any unsupported character is replaced with a **`?`** fallback glyph.
+
+```go
+opts := banner.Options{
+    ServiceName: "my-svc",
+    BannerStyle: "classic",
+}
+```
+
+Override taglines:
+
+```go
+opts := banner.Options{
+    ServiceName: "my-svc",
+    BannerStyle: "classic",
+    Tagline1:    "My Service v2.0.0",
+    Tagline2:    "Powered by goStartyUpy",
+}
+```
+
+The `ShowDetails` option (pointer to bool) controls whether the key/value
+info section is printed in classic mode. By default details are shown. Set
+it to `false` to hide the details section:
+
+```go
+hide := false
+opts := banner.Options{
+    ServiceName: "my-svc",
+    BannerStyle: "classic",
+    ShowDetails: &hide,
+}
+```
+
+You can also call `banner.ClassicLikeBanner(name, asciiOnly)` directly.
 
 ### Box style
 

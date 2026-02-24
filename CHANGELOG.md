@@ -25,6 +25,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   maximum width.
 - Tests for `SpringLikeBanner`, `BoxBanner`, `BannerStyle`, `BannerWidth`,
   name normalization, and Unicode/edge-case input safety.
+- Classic banner style (`BannerStyle: "classic"`) with a built-in
+  slash/backslash/underscore font (`banner/font_classic.go`) and two
+  configurable tagline lines beneath the wordmark, inspired by traditional
+  Java framework startup banners.
+- `ClassicLikeBanner` public function for direct classic banner generation.
+- `Options.Tagline1` and `Options.Tagline2` fields for overriding the
+  default tagline lines in classic mode.
+- `Options.ShowDetails` field (pointer to bool) to hide the key/value info
+  section in classic mode.
+- Tests for classic font, renderer, banner builder, taglines, style
+  switching, ShowDetails, and Unicode safety.
 
 ### Changed
 
