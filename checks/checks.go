@@ -91,6 +91,15 @@ func (r Runner) runOne(ctx context.Context, c Check) (res Result) {
 	return res
 }
 
+// DefaultRunner returns a Runner with sensible defaults: 2 s per-check
+// timeout and parallel execution enabled.
+func DefaultRunner() Runner {
+	return Runner{
+		TimeoutPerCheck: 2 * time.Second,
+		Parallel:        true,
+	}
+}
+
 // stringify converts an arbitrary recovered value to a string.
 func stringify(v any) string {
 	if s, ok := v.(string); ok {

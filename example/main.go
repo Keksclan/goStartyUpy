@@ -11,7 +11,6 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/keksclan/goStartyUpy/banner"
 	"github.com/keksclan/goStartyUpy/checks"
@@ -49,18 +48,35 @@ func main() {
 	// db, err := sql.Open("pgx", "postgres://user:pass@localhost:5432/mydb?sslmode=disable")
 	var db *sql.DB // placeholder – will gracefully fail as nil
 
-	checkList := []checks.Check{
+	// Custom check: validate that a required environment variable exists.
+	envCheck := checks.New("env-DATABASE_URL", func(ctx context.Context) error {
+		if os.Getenv("DATABASE_URL") == "" {
+			return fmt.Errorf("DATABASE_URL is not set")
+		}
+		return nil
+	})
+
+	// Boolean check: feature flag.
+	featureFlag := checks.Bool("feature-flag", func(_ context.Context) (bool, error) {
+		return os.Getenv("ENABLE_NEW_UI") == "true", nil
+	})
+
+	// Group check: bundle infrastructure dependencies together.
+	dependencies := checks.NewGroup("dependencies", checks.GroupOptions{},
 		checks.SQLPingCheck{DB: db, NameLabel: "postgres"},
 		checks.TCPDialCheck{Address: "localhost:6379", Label: "redis-tcp"},
 		checks.HTTPGetCheck{URL: "http://localhost:8080/healthz", Label: "self-http"},
 		checks.RedisPingCheck{Address: "localhost:6379", Label: "redis-ping"},
+	)
+
+	checkList := []checks.Check{
+		envCheck,
+		featureFlag,
+		dependencies,
 	}
 
-	// Run all checks in parallel with a 2-second per-check timeout.
-	runner := checks.Runner{
-		TimeoutPerCheck: 2 * time.Second,
-		Parallel:        true,
-	}
+	// Run all checks using the default runner (parallel, 2 s per-check timeout).
+	runner := checks.DefaultRunner()
 
 	ctx := context.Background()
 	results := runner.Run(ctx, checkList...)

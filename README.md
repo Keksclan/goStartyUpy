@@ -192,7 +192,54 @@ func main() {
 
 ### Custom Checks
 
-Implement the `checks.Check` interface:
+You can implement the `checks.Check` interface directly, or use the built-in
+helpers for common patterns:
+
+#### Function-based check
+
+```go
+// Wrap any func(ctx) error into a Check:
+envCheck := checks.New("env-DATABASE_URL", func(ctx context.Context) error {
+    if os.Getenv("DATABASE_URL") == "" {
+        return fmt.Errorf("DATABASE_URL is not set")
+    }
+    return nil
+})
+```
+
+#### Boolean check
+
+```go
+// Wrap a func(ctx) (bool, error) into a Check:
+featureFlag := checks.Bool("feature-flag", func(ctx context.Context) (bool, error) {
+    return os.Getenv("ENABLE_NEW_UI") == "true", nil
+})
+```
+
+#### Grouped checks
+
+```go
+// Bundle related checks into a single composite Check:
+deps := checks.NewGroup("dependencies", checks.GroupOptions{},
+    checks.SQLPingCheck{DB: db, NameLabel: "postgres"},
+    checks.TCPDialCheck{Address: "localhost:6379", Label: "redis-tcp"},
+)
+// The group passes only when every child passes; the error summary lists
+// which children failed.
+```
+
+#### Default runner
+
+```go
+// DefaultRunner returns a Runner with 2 s per-check timeout and parallel
+// execution enabled:
+runner := checks.DefaultRunner()
+results := runner.Run(ctx, envCheck, featureFlag, deps)
+```
+
+#### Interface
+
+You can also implement the interface yourself:
 
 ```go
 type Check interface {
@@ -227,6 +274,31 @@ Checks:
   [OK]   redis-ping (2ms)
 
 Startup Complete
+```
+
+## Examples
+
+The `example/` directory contains runnable programs that demonstrate different
+features. Build any of them with `go run ./example/<name>`:
+
+| Example | What it shows |
+|---|---|
+| `example/` | Full demo: custom checks, groups, built-in checks, default runner |
+| `example/simple/` | Minimal banner-only usage (no checks) |
+| `example/custom_banner/` | Supplying your own ASCII art banner |
+| `example/ascii_only/` | ASCII-only mode for terminals without Unicode |
+| `example/checks_demo/` | All built-in check types (SQL, TCP, HTTP, Redis) |
+| `example/custom_checks/` | Function-based, boolean, and grouped custom checks |
+
+```bash
+# Run the simple example:
+go run ./example/simple/
+
+# Run the full demo with ldflags (via Makefile):
+make run-example
+
+# Run with environment variables to see passing checks:
+PORT=8080 APP_SECRET=s3cret go run ./example/custom_checks/
 ```
 
 ## Security Note
