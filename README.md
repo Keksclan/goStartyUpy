@@ -9,6 +9,7 @@ A zero-dependency Go library that generates a production-ready startup banner wi
 - **No external dependencies** – standard library only.
 - **Never panics** – all errors are captured and returned as structured results.
 - **Deterministic & testable** – stable output ordering, no randomness.
+- **Optional ANSI colors** – set `Color: true` for colorized terminal output; plain text by default.
 
 ## Quickstart
 
@@ -25,6 +26,7 @@ func main() {
     opts := banner.Options{
         ServiceName: "my-service",
         Environment: "production",
+        Color:       true, // enable ANSI colors (set false for plain text)
         Extra: map[string]string{
             "HTTP": ":8080",
             "gRPC": ":9090",
@@ -81,6 +83,7 @@ func main() {
     opts := banner.Options{
         ServiceName: "order-service",
         Environment: "staging",
+        Color:       true,
         Extra: map[string]string{
             "HTTP": ":8080",
         },
