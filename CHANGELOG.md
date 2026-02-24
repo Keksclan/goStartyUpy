@@ -9,9 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Built-in big ASCII font for spring-like banners using an "underscore / pipe /
+  slash" style (`banner/font_big.go`). Supports A–Z, 0–9, `-`, `_`, space, and
+  a `?` fallback glyph. No external dependencies.
+- `renderBigText` internal renderer (`banner/render_big.go`) that normalizes
+  input and produces aligned 5-row ASCII-art output.
+- Font preview example (`example/font_preview/main.go`) for visual verification.
 - `SpringLikeBanner` function that generates a large ASCII-art wordmark from
-  `ServiceName`, inspired by Spring Boot startup banners. No external
-  dependencies; uses a built-in 5-row block font for A-Z, 0-9, `-`, `_`.
+  `ServiceName`, inspired by Spring Boot startup banners.
 - `BoxBanner` function — the previous box-style banner extracted as a named
   public function.
 - `Options.BannerStyle` field: `"spring"` (default) for the new wordmark

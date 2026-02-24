@@ -40,8 +40,8 @@ func TestSpringLikeBanner_MultiLine(t *testing.T) {
 
 func TestSpringLikeBanner_EmptyNameUsesService(t *testing.T) {
 	out := SpringLikeBanner("", false)
-	// "SERVICE" wordmark starts with S glyph " SSS "
-	if !strings.Contains(out, "SSS") {
+	// "SERVICE" wordmark includes the S glyph which contains "/ ___|"
+	if !strings.Contains(out, "/ ___|") {
 		t.Errorf("expected SERVICE wordmark for empty name, got:\n%s", out)
 	}
 }

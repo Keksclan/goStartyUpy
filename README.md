@@ -12,6 +12,9 @@ deterministic startup message with optional dependency verification.
 - **Customizable banner** — auto-generated Spring Boot–style ASCII-art
   wordmark from `ServiceName` (default), classic box style, or your own
   multiline ASCII art.
+- **Built-in big font (no deps)** — underscore / pipe / slash style glyphs
+  for A–Z, 0–9, `-`, `_`, and space. Unknown characters render as a `?`
+  fallback glyph. Deterministic, zero external dependencies.
 - **ASCII fallback mode** — `ASCIIOnly: true` replaces Unicode box-drawing
   characters with plain ASCII for restricted terminals.
 - **Startup checks** — verify SQL databases, TCP endpoints, HTTP services,
@@ -152,7 +155,11 @@ When `Options.Banner` is set, the value is used as-is ("raw" mode) and
 `BannerStyle: "spring"` (or empty, which defaults to `"spring"`) generates a
 large ASCII-art wordmark derived from `ServiceName`, followed by a tagline.
 This is inspired by the Spring Boot startup banner structure — no external
-dependencies, fully deterministic, built-in block font.
+dependencies, fully deterministic, built-in big font using an "underscore /
+pipe / slash" style.
+
+Supported characters: **A–Z**, **0–9**, **`-`**, **`_`**, and **space**.
+Any unsupported character is replaced with a **`?`** fallback glyph.
 
 ```go
 opts := banner.Options{
@@ -164,11 +171,11 @@ opts := banner.Options{
 Example output (shape):
 
 ```
-M   M Y   Y        SSS  V   V  CCCC
-MM MM  Y Y        S     V   V C
-M M M   Y   -----  SSS  V   V C
-M   M   Y             S  V V  C
-M   M   Y          SSS    V    CCCC
+ __  __  __   __         ____   __     __  ____
+|  \/  | \ \ / /        / ___| \ \   / / / ___|
+| |\/| |  \ V /  _____  \___ \  \ \ / / | |
+| |  | |   | |  |_____|  ___) |  \ V /  | |___
+|_|  |_|   |_|          |____/    \_/    \____|
 
  :: goStartyUpy :: (dev)
 ```
@@ -380,6 +387,7 @@ The `example/` directory contains runnable programs:
 | `example/ascii_only/`    | ASCII-only mode for terminals without Unicode       |
 | `example/checks_demo/`   | All built-in check types (SQL, TCP, HTTP, Redis)    |
 | `example/custom_checks/` | Function-based, boolean, and grouped custom checks  |
+| `example/font_preview/`  | Prints the big-font ASCII wordmark for a service name |
 
 ```bash
 go run ./example/simple/
