@@ -1,0 +1,23 @@
+# Normalize line endings for all text files.
+* text=auto
+
+# Go source files always use LF.
+*.go text eol=lf
+
+# Shell scripts always use LF.
+*.sh text eol=lf
+
+# Markdown and config files.
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+
+# Makefile must use LF (tabs are significant).
+Makefile text eol=lf
+
+# Treat binaries as binary.
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary

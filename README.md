@@ -1,17 +1,37 @@
 # goStartyUpy
 
-A zero-dependency Go library that generates a production-ready startup banner with build metadata, runtime info, and optional health checks.
+A zero-dependency Go library that renders a production-ready startup banner
+with build metadata, runtime information, and structured health checks.
+It is designed as a reusable module for any Go service that needs a clear,
+deterministic startup message with optional dependency verification.
 
-## Features
+## Feature Overview
 
-- **Startup banner** with ASCII art, build metadata, and runtime details.
-- **Auto-generated banner** from `ServiceName` when no custom banner is set.
-- **Startup checks** – verify databases, TCP endpoints, HTTP services, and Redis before accepting traffic.
-- **No external dependencies** – standard library only.
-- **Never panics** – all errors are captured and returned as structured results.
-- **Deterministic & testable** – stable output ordering, no randomness.
-- **Optional ANSI colors** – set `Color: true` for colorized terminal output; plain text by default.
-- **ASCII-only mode** – set `ASCIIOnly: true` to avoid Unicode box-drawing characters.
+- **Build metadata injection** — inject Version, BuildTime, Commit, Branch,
+  and Dirty flag via `-ldflags` at compile time.
+- **Customizable banner** — auto-generated box banner from `ServiceName`,
+  or provide your own multiline ASCII art.
+- **ASCII fallback mode** — `ASCIIOnly: true` replaces Unicode box-drawing
+  characters with plain ASCII for restricted terminals.
+- **Startup checks** — verify SQL databases, TCP endpoints, HTTP services,
+  and Redis connectivity before accepting traffic.
+- **Custom checks** — implement the `Check` interface, or use `checks.New`,
+  `checks.Bool`, and `checks.NewGroup` helpers.
+- **Parallel & sequential execution** — `Runner` supports both modes with
+  per-check timeouts.
+- **Deterministic & testable** — stable output ordering, no randomness,
+  no external dependencies.
+- **Optional ANSI colors** — `Color: true` for colorized terminal output;
+  plain text by default.
+- **Never panics** — all errors are captured and returned as structured results.
+
+## Installation
+
+```bash
+go get github.com/keksclan/goStartyUpy
+```
+
+Requires Go 1.26 or later.
 
 ## Quickstart
 
@@ -19,27 +39,107 @@ A zero-dependency Go library that generates a production-ready startup banner wi
 package main
 
 import (
+    "context"
     "fmt"
+    "os"
 
     "github.com/keksclan/goStartyUpy/banner"
+    "github.com/keksclan/goStartyUpy/checks"
 )
 
 func main() {
     opts := banner.Options{
         ServiceName: "my-service",
         Environment: "production",
-        Color:       true, // enable ANSI colors (set false for plain text)
         Extra: map[string]string{
             "HTTP": ":8080",
-            "gRPC": ":9090",
         },
     }
     info := banner.CurrentBuildInfo()
-    fmt.Print(banner.Render(opts, info))
+
+    runner := checks.DefaultRunner()
+    results := runner.Run(context.Background(),
+        checks.New("env-check", func(ctx context.Context) error {
+            if os.Getenv("APP_SECRET") == "" {
+                return fmt.Errorf("APP_SECRET not set")
+            }
+            return nil
+        }),
+        checks.TCPDialCheck{Address: "localhost:5432", Label: "postgres-tcp"},
+    )
+
+    fmt.Print(banner.RenderWithChecks(opts, info, results))
 }
 ```
 
-## Banner Customization
+Build with metadata:
+
+```bash
+make build PKG=./cmd/myservice BIN=bin/myservice
+```
+
+## Build Metadata (ldflags)
+
+The `banner` package exposes five link-time variables that are injected via
+`-ldflags` during `go build`:
+
+| Variable    | Description                                          | Default     |
+|-------------|------------------------------------------------------|-------------|
+| `Version`   | Semantic version or git describe output              | `"dev"`     |
+| `BuildTime` | UTC timestamp of the build (RFC 3339)                | `"unknown"` |
+| `Commit`    | Short git commit hash                                | `"unknown"` |
+| `Branch`    | Git branch the binary was built from                 | `"unknown"` |
+| `Dirty`     | `"true"` if the working tree had uncommitted changes | `"false"`   |
+
+### Using the Makefile
+
+The included `Makefile` collects git metadata automatically:
+
+```bash
+make build-example   # compile example binary with metadata
+make run-example     # build and run example
+make test            # run all unit tests
+make lint            # go vet + gofmt check
+make clean           # remove build artifacts
+```
+
+For your own service:
+
+```bash
+make build PKG=./cmd/myservice BIN=bin/myservice
+```
+
+### Manual build
+
+```bash
+VERSION=$(git describe --tags --always --dirty)
+COMMIT=$(git rev-parse --short HEAD)
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+BUILD_TIME=$(date -Iseconds)
+DIRTY=$(git diff --quiet && echo "false" || echo "true")
+
+go build -ldflags "\
+  -X 'github.com/keksclan/goStartyUpy/banner.Version=${VERSION}' \
+  -X 'github.com/keksclan/goStartyUpy/banner.BuildTime=${BUILD_TIME}' \
+  -X 'github.com/keksclan/goStartyUpy/banner.Commit=${COMMIT}' \
+  -X 'github.com/keksclan/goStartyUpy/banner.Branch=${BRANCH}' \
+  -X 'github.com/keksclan/goStartyUpy/banner.Dirty=${DIRTY}'" \
+  ./cmd/myservice/
+```
+
+### Using `scripts/ldflags.sh`
+
+The helper script prints the full ldflags string for integration into any
+build system (POSIX sh compatible):
+
+```bash
+LDFLAGS="$(./scripts/ldflags.sh)" go build -ldflags "$LDFLAGS" ./cmd/myservice
+
+# Override the module path if your import path differs:
+MODULE=github.com/my/repo ./scripts/ldflags.sh
+```
+
+## Custom Banner
 
 ### Auto-generated banner (default)
 
@@ -52,8 +152,7 @@ When `Options.Banner` is empty the library generates a box banner from
 └───────────────────────────┘
 ```
 
-Set `Options.ASCIIOnly = true` to use plain ASCII characters instead of
-Unicode box-drawing:
+Set `Options.ASCIIOnly = true` to use plain ASCII:
 
 ```
 +---------------------------+
@@ -61,8 +160,7 @@ Unicode box-drawing:
 +---------------------------+
 ```
 
-You can also call `banner.DefaultBanner(name, asciiOnly)` directly if you need
-the generated string elsewhere.
+You can also call `banner.DefaultBanner(name, asciiOnly)` directly.
 
 ### Custom banner
 
@@ -80,125 +178,50 @@ opts := banner.Options{
 
 When `Banner` is set the auto-generation is skipped entirely.
 
-## Build with Makefile
+## Checks System
 
-The included `Makefile` automatically collects git metadata and injects it via
-`-ldflags`:
+### Check interface
 
-```bash
-make build-example   # compile example binary with metadata
-make run-example     # build and run example
-make test            # run all unit tests
-make lint            # go vet + gofmt check
-make clean           # remove build artifacts
-```
-
-For your own service you can use the generic `build` target:
-
-```bash
-make build PKG=./cmd/myservice BIN=bin/myservice
-```
-
-### Using `scripts/ldflags.sh` from another repo
-
-The helper script `scripts/ldflags.sh` prints the ldflags string so you can
-integrate it into any build system. It is POSIX sh compatible.
-
-```bash
-# From the goStartyUpy directory:
-LDFLAGS="$(./scripts/ldflags.sh)" go build -ldflags "$LDFLAGS" ./cmd/myservice
-
-# Override the module path if your import path differs:
-MODULE=github.com/my/repo ./scripts/ldflags.sh
-```
-
-## Build with ldflags (manual)
-
-Inject git metadata at build time:
-
-```bash
-VERSION=$(git describe --tags --always --dirty)
-COMMIT=$(git rev-parse --short HEAD)
-BRANCH=$(git rev-parse --abbrev-ref HEAD)
-BUILD_TIME=$(date -Iseconds)
-DIRTY=$(git diff --quiet && echo "false" || echo "true")
-
-go build -ldflags "\
-  -X 'github.com/keksclan/goStartyUpy/banner.Version=${VERSION}' \
-  -X 'github.com/keksclan/goStartyUpy/banner.BuildTime=${BUILD_TIME}' \
-  -X 'github.com/keksclan/goStartyUpy/banner.Commit=${COMMIT}' \
-  -X 'github.com/keksclan/goStartyUpy/banner.Branch=${BRANCH}' \
-  -X 'github.com/keksclan/goStartyUpy/banner.Dirty=${DIRTY}'" \
-  ./example/
-```
-
-## Running Checks
-
-Use the `checks` package to verify dependencies at startup:
+Every startup probe implements the `Check` interface:
 
 ```go
-package main
-
-import (
-    "context"
-    "database/sql"
-    "fmt"
-    "time"
-
-    _ "github.com/jackc/pgx/v5/stdlib" // your driver
-
-    "github.com/keksclan/goStartyUpy/banner"
-    "github.com/keksclan/goStartyUpy/checks"
-)
-
-func main() {
-    db, _ := sql.Open("pgx", "postgres://user:pass@localhost:5432/mydb?sslmode=disable")
-    defer db.Close()
-
-    opts := banner.Options{
-        ServiceName: "order-service",
-        Environment: "staging",
-        Color:       true,
-        Extra: map[string]string{
-            "HTTP": ":8080",
-        },
-    }
-    info := banner.CurrentBuildInfo()
-
-    runner := checks.Runner{
-        TimeoutPerCheck: 2 * time.Second,
-        Parallel:        true,
-    }
-
-    results := runner.Run(context.Background(),
-        checks.SQLPingCheck{DB: db, NameLabel: "postgres"},
-        checks.TCPDialCheck{Address: "localhost:6379", Label: "redis-tcp"},
-        checks.HTTPGetCheck{URL: "http://localhost:8080/healthz", Label: "self-http"},
-        checks.RedisPingCheck{Address: "localhost:6379", Label: "redis-ping"},
-    )
-
-    fmt.Print(banner.RenderWithChecks(opts, info, results))
+type Check interface {
+    Name() string
+    Run(ctx context.Context) checks.Result
 }
 ```
 
-### Available Checks
+### Runner
 
-| Check | Description |
-|---|---|
-| `SQLPingCheck` | Pings a `*sql.DB` via `PingContext`. |
-| `TCPDialCheck` | Dials a TCP `host:port` and closes the connection. |
-| `HTTPGetCheck` | Sends an HTTP GET and checks the status code range. |
+`Runner` executes checks with a configurable per-check timeout. When
+`Parallel` is true all checks run concurrently; results are returned in
+input order regardless.
+
+```go
+runner := checks.Runner{
+    TimeoutPerCheck: 2 * time.Second,
+    Parallel:        true,
+}
+results := runner.Run(ctx, check1, check2, check3)
+```
+
+`checks.DefaultRunner()` returns a runner with 2 s timeout and parallel
+execution enabled.
+
+### Built-in checks
+
+| Check            | Description                                                    |
+|------------------|----------------------------------------------------------------|
+| `SQLPingCheck`   | Pings a `*sql.DB` via `PingContext`.                           |
+| `TCPDialCheck`   | Dials a TCP `host:port` and closes the connection.             |
+| `HTTPGetCheck`   | Sends an HTTP GET and checks the status code range.            |
 | `RedisPingCheck` | Sends a RESP `PING` command over TCP (no Redis client needed). |
 
-### Custom Checks
-
-You can implement the `checks.Check` interface directly, or use the built-in
-helpers for common patterns:
+### Custom checks
 
 #### Function-based check
 
 ```go
-// Wrap any func(ctx) error into a Check:
 envCheck := checks.New("env-DATABASE_URL", func(ctx context.Context) error {
     if os.Getenv("DATABASE_URL") == "" {
         return fmt.Errorf("DATABASE_URL is not set")
@@ -210,7 +233,6 @@ envCheck := checks.New("env-DATABASE_URL", func(ctx context.Context) error {
 #### Boolean check
 
 ```go
-// Wrap a func(ctx) (bool, error) into a Check:
 featureFlag := checks.Bool("feature-flag", func(ctx context.Context) (bool, error) {
     return os.Getenv("ENABLE_NEW_UI") == "true", nil
 })
@@ -219,33 +241,104 @@ featureFlag := checks.Bool("feature-flag", func(ctx context.Context) (bool, erro
 #### Grouped checks
 
 ```go
-// Bundle related checks into a single composite Check:
 deps := checks.NewGroup("dependencies", checks.GroupOptions{},
     checks.SQLPingCheck{DB: db, NameLabel: "postgres"},
     checks.TCPDialCheck{Address: "localhost:6379", Label: "redis-tcp"},
 )
-// The group passes only when every child passes; the error summary lists
-// which children failed.
 ```
 
-#### Default runner
+The group passes only when every child passes; the error summary lists
+which children failed.
+
+### Parallel vs sequential execution
+
+Set `Runner.Parallel = true` to run all checks concurrently. Each check
+gets its own goroutine, and the runner waits for all to complete. When
+`Parallel` is false checks execute sequentially in input order. In both
+modes results are returned in the same order as the input slice.
+
+## Module Version vs Build Version
+
+This module exposes two distinct version values:
+
+| Value                    | Purpose                             | Set by            |
+|--------------------------|-------------------------------------|-------------------|
+| `version.ModuleVersion`  | Library release version (`0.1.0`)   | Source code        |
+| `banner.Version`         | Service build version (`v1.2.3`)    | `-ldflags` at build time |
+
+`ModuleVersion` tracks the goStartyUpy library release. `banner.Version`
+is injected by the service that imports the library and represents the
+service binary version. They are independent and serve different purposes.
 
 ```go
-// DefaultRunner returns a Runner with 2 s per-check timeout and parallel
-// execution enabled:
-runner := checks.DefaultRunner()
-results := runner.Run(ctx, envCheck, featureFlag, deps)
+import "github.com/keksclan/goStartyUpy/version"
+
+fmt.Println("Library version:", version.ModuleVersion)
 ```
 
-#### Interface
+## Public API Stability
 
-You can also implement the interface yourself:
+The following are considered **public API** and are subject to the
+versioning guarantees described below:
 
-```go
-type Check interface {
-    Name() string
-    Run(ctx context.Context) checks.Result
-}
+- All exported types, functions, variables, and constants in the `banner`,
+  `checks`, and `version` packages.
+- The `Check` interface contract.
+- The `Options` and `BuildInfo` struct fields.
+- The `Result` struct fields.
+
+Internal (unexported) identifiers, the `example/` directory, and
+`scripts/` are not part of the public API and may change without notice.
+
+## Versioning Policy
+
+This project follows [Semantic Versioning 2.0.0](https://semver.org/):
+
+- **MAJOR** — incompatible API changes (removing/renaming exported symbols,
+  changing function signatures, breaking the `Check` interface).
+- **MINOR** — new features added in a backwards-compatible manner (new check
+  types, new `Options` fields, new helper functions).
+- **PATCH** — backwards-compatible bug fixes and documentation corrections.
+
+While the module is at `0.x.y`, the API may change between minor versions.
+A `1.0.0` release will signal a stable public API commitment.
+
+## Release Process
+
+1. Update `version/version.go` — set `ModuleVersion` to the new version.
+2. Update `CHANGELOG.md` — move items from `[Unreleased]` to a new
+   version section with the release date.
+3. Commit the changes:
+   ```bash
+   git add -A
+   git commit -m "release: v0.1.0"
+   ```
+4. Tag and push:
+   ```bash
+   git tag v0.1.0
+   git push origin main v0.1.0
+   ```
+5. Consumers can then pin the version:
+   ```bash
+   go get github.com/keksclan/goStartyUpy@v0.1.0
+   ```
+
+## Examples
+
+The `example/` directory contains runnable programs:
+
+| Example                  | What it shows                                       |
+|--------------------------|-----------------------------------------------------|
+| `example/`               | Full demo: custom checks, groups, built-in checks   |
+| `example/simple/`        | Minimal banner-only usage (no checks)               |
+| `example/custom_banner/` | Supplying your own ASCII art banner                 |
+| `example/ascii_only/`    | ASCII-only mode for terminals without Unicode       |
+| `example/checks_demo/`   | All built-in check types (SQL, TCP, HTTP, Redis)    |
+| `example/custom_checks/` | Function-based, boolean, and grouped custom checks  |
+
+```bash
+go run ./example/simple/
+make run-example
 ```
 
 ## Output Example
@@ -276,34 +369,11 @@ Checks:
 Startup Complete
 ```
 
-## Examples
-
-The `example/` directory contains runnable programs that demonstrate different
-features. Build any of them with `go run ./example/<name>`:
-
-| Example | What it shows |
-|---|---|
-| `example/` | Full demo: custom checks, groups, built-in checks, default runner |
-| `example/simple/` | Minimal banner-only usage (no checks) |
-| `example/custom_banner/` | Supplying your own ASCII art banner |
-| `example/ascii_only/` | ASCII-only mode for terminals without Unicode |
-| `example/checks_demo/` | All built-in check types (SQL, TCP, HTTP, Redis) |
-| `example/custom_checks/` | Function-based, boolean, and grouped custom checks |
-
-```bash
-# Run the simple example:
-go run ./example/simple/
-
-# Run the full demo with ldflags (via Makefile):
-make run-example
-
-# Run with environment variables to see passing checks:
-PORT=8080 APP_SECRET=s3cret go run ./example/custom_checks/
-```
-
 ## Security Note
 
-The banner only prints **safe, non-secret** information (version, addresses, PID, etc.). **Do not** pass secrets (passwords, tokens) via `Options.Extra` or any other field. The caller is responsible for what gets printed.
+The banner only prints **safe, non-secret** information (version, addresses,
+PID, etc.). **Do not** pass secrets (passwords, tokens) via `Options.Extra`
+or any other field. The caller is responsible for what gets printed.
 
 ## Testing
 
