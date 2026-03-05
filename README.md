@@ -1,10 +1,10 @@
 # goStartyUpy
 
-> **Zero-Dependency Go Library für produktionsreife Startup-Banner mit Build-Metadaten, Runtime-Informationen und strukturierten Health-Checks.**
+> **Zero-dependency Go library for production-ready startup banners with build metadata, runtime information, and structured health checks.**
 
-goStartyUpy ist ein wiederverwendbares Go-Modul, das beim Start eines beliebigen Go-Services einen klar strukturierten, deterministischen Startup-Banner rendert. Es kombiniert Build-Metadaten (Version, Commit, Branch …), Runtime-Informationen (Go-Version, OS/Arch, PID …) und optionale Dependency-Checks (SQL, TCP, HTTP, Redis …) in einer einzigen, sofort lesbaren Konsolenausgabe.
+goStartyUpy is a reusable Go module that renders a clearly structured, deterministic startup banner when any Go service starts. It combines build metadata (version, commit, branch, etc.), runtime information (Go version, OS/Arch, PID, etc.), and optional dependency checks (SQL, TCP, HTTP, Redis, etc.) into a single, instantly readable console output.
 
-**Keine externen Abhängigkeiten.** Alles basiert ausschließlich auf der Go-Standardbibliothek (`stdlib`). Das Modul fügt deiner `go.sum` exakt **null** Einträge hinzu.
+**No external dependencies.** Everything is based exclusively on the Go standard library (`stdlib`). The module adds exactly **zero** entries to your `go.sum`.
 
 ---
 
@@ -14,22 +14,22 @@ goStartyUpy ist ein wiederverwendbares Go-Modul, das beim Start eines beliebigen
 
 ---
 
-## Feature-Übersicht
+## Feature Overview
 
-| Feature | Beschreibung |
+| Feature | Description |
 |---------|-------------|
-| **6 Banner-Styles** | `spring` (Standard), `classic`, `box`, `mini`, `block`, oder eigenes ASCII-Art via `Banner`-Feld |
-| **Build-Metadaten** | Version, BuildTime, Commit, Branch, Dirty – injiziert zur Compile-Zeit via `-ldflags` |
-| **Runtime-Info** | Go-Version, OS/Arch, PID – automatisch erfasst zur Laufzeit |
-| **4 Built-in Checks** | `SQLPingCheck`, `TCPDialCheck`, `HTTPGetCheck`, `RedisPingCheck` – alle ohne externe Deps |
-| **Custom Checks** | `checks.New()`, `checks.Bool()`, `checks.NewGroup()` – oder eigenes `Check`-Interface |
-| **Parallel & Sequential** | `Runner` unterstützt beide Modi mit konfigurierbarem Per-Check-Timeout |
-| **Environment-Erkennung** | Automatisch via `GO_STARTYUPY_ENV` Umgebungsvariable, wenn nicht explizit gesetzt |
-| **ANSI-Farben** | Optional via `Color: true` – standardmäßig reiner Text ohne Escape-Sequenzen |
-| **ASCII-Only-Modus** | `ASCIIOnly: true` ersetzt Unicode-Box-Zeichen durch plain ASCII (`+`, `-`, `\|`) |
-| **Banner-Breite** | `BannerWidth` beschneidet jede Zeile auf eine Maximalbreite |
-| **Deterministisch** | Stabile Ausgabereihenfolge, kein Zufall, keine Seiteneffekte |
-| **Panic-Safe** | Alle Fehler werden abgefangen und als strukturierte `Result`-Objekte zurückgegeben |
+| **6 Banner Styles** | `spring` (default), `classic`, `box`, `mini`, `block`, or custom ASCII art via the `Banner` field |
+| **Build Metadata** | Version, BuildTime, Commit, Branch, Dirty — injected at compile time via `-ldflags` |
+| **Runtime Info** | Go version, OS/Arch, PID — automatically captured at runtime |
+| **4 Built-in Checks** | `SQLPingCheck`, `TCPDialCheck`, `HTTPGetCheck`, `RedisPingCheck` — all without external dependencies |
+| **Custom Checks** | `checks.New()`, `checks.Bool()`, `checks.NewGroup()` — or implement the `Check` interface |
+| **Parallel & Sequential** | `Runner` supports both modes with configurable per-check timeout |
+| **Environment Detection** | Automatic via the `GO_STARTYUPY_ENV` environment variable when not explicitly set |
+| **ANSI Colors** | Optional via `Color: true` — plain text without escape sequences by default |
+| **ASCII-Only Mode** | `ASCIIOnly: true` replaces Unicode box-drawing characters with plain ASCII (`+`, `-`, `\|`) |
+| **Banner Width** | `BannerWidth` truncates each line to a maximum width |
+| **Deterministic** | Stable output order, no randomness, no side effects |
+| **Panic-Safe** | All errors are caught and returned as structured `Result` objects |
 
 ---
 
@@ -39,29 +39,29 @@ goStartyUpy ist ein wiederverwendbares Go-Modul, das beim Start eines beliebigen
 go get github.com/keksclan/goStartyUpy
 ```
 
-**Voraussetzung:** Go 1.24 oder neuer.
+**Prerequisite:** Go 1.24 or newer.
 
-Das Modul hat **keine transitiven Abhängigkeiten**. Nach `go get` enthält deine `go.sum` nur den einen Eintrag für `goStartyUpy` selbst.
+The module has **no transitive dependencies**. After `go get`, your `go.sum` will contain only the single entry for `goStartyUpy` itself.
 
-### Import-Pfade
+### Import Paths
 
 ```go
 import (
-    "github.com/keksclan/goStartyUpy/banner"   // Banner-Rendering, Options, BuildInfo
-    "github.com/keksclan/goStartyUpy/checks"    // Health-Checks, Runner, Check-Interface
-    "github.com/keksclan/goStartyUpy/version"   // Modul-Version (z.B. "0.1.0")
+    "github.com/keksclan/goStartyUpy/banner"   // Banner rendering, Options, BuildInfo
+    "github.com/keksclan/goStartyUpy/checks"    // Health checks, Runner, Check interface
+    "github.com/keksclan/goStartyUpy/version"   // Module version (e.g., "0.1.0")
 )
 ```
 
-- **`banner`** — Hauptpaket. Enthält `Options`, `BuildInfo`, `Render()`, `RenderWithChecks()`, alle Banner-Funktionen und die Build-Metadaten-Variablen.
-- **`checks`** — Health-Check-System. Enthält `Check`-Interface, `Runner`, alle Built-in-Checks und Hilfskonstruktoren.
-- **`version`** — Exponiert die Modul-Version als `ModuleVersion`-Konstante.
+- **`banner`** — Main package. Contains `Options`, `BuildInfo`, `Render()`, `RenderWithChecks()`, all banner functions, and the build metadata variables.
+- **`checks`** — Health check system. Contains the `Check` interface, `Runner`, all built-in checks, and helper constructors.
+- **`version`** — Exposes the module version as the `ModuleVersion` constant.
 
 ---
 
 ## Quickstart
 
-### Minimaler Banner (ohne Checks)
+### Minimal Banner (Without Checks)
 
 ```go
 package main
@@ -81,9 +81,9 @@ func main() {
 }
 ```
 
-Das erzeugt einen Spring-Boot-ähnlichen ASCII-Art-Wordmark mit allen erkannten Build-/Runtime-Metadaten.
+This produces a Spring Boot–style ASCII art wordmark with all detected build/runtime metadata.
 
-### Vollständiges Beispiel (Banner + Checks)
+### Full Example (Banner + Checks)
 
 ```go
 package main
@@ -108,7 +108,7 @@ func main() {
     }
     info := banner.CurrentBuildInfo()
 
-    runner := checks.DefaultRunner() // 2s Timeout, parallel
+    runner := checks.DefaultRunner() // 2s timeout, parallel
     results := runner.Run(context.Background(),
         checks.New("env-DATABASE_URL", func(ctx context.Context) error {
             if os.Getenv("DATABASE_URL") == "" {
@@ -124,13 +124,13 @@ func main() {
 }
 ```
 
-### Kompilieren mit Build-Metadaten
+### Compiling with Build Metadata
 
 ```bash
 make build PKG=./cmd/myservice BIN=bin/myservice
 ```
 
-Oder direkt:
+Or directly:
 
 ```bash
 go build -ldflags "$(./scripts/ldflags.sh)" ./cmd/myservice/
@@ -138,43 +138,43 @@ go build -ldflags "$(./scripts/ldflags.sh)" ./cmd/myservice/
 
 ---
 
-## Build-Metadaten (`-ldflags`)
+## Build Metadata (`-ldflags`)
 
-Das `banner`-Paket stellt fünf Link-Time-Variablen bereit, die zur Compile-Zeit via `-ldflags` injiziert werden. Diese Werte erscheinen automatisch im gerenderten Banner.
+The `banner` package provides five link-time variables that are injected at compile time via `-ldflags`. These values automatically appear in the rendered banner.
 
-| Variable | Typ | Beschreibung | Default |
-|----------|-----|-------------|---------|
-| `banner.Version` | `string` | Semantische Version oder `git describe`-Ausgabe (z.B. `v1.2.3`, `v1.2.3-4-gabcdef1`) | `"dev"` |
-| `banner.BuildTime` | `string` | UTC-Zeitstempel des Builds im RFC 3339 Format (z.B. `2026-03-05T18:00:00+01:00`) | `"unknown"` |
-| `banner.Commit` | `string` | Kurzer Git-Commit-Hash (z.B. `abcdef1`) | `"unknown"` |
-| `banner.Branch` | `string` | Git-Branch, auf dem kompiliert wurde (z.B. `master`, `feature/foo`) | `"unknown"` |
-| `banner.Dirty` | `string` | `"true"` wenn der Working Tree beim Build uncommitted Changes hatte, sonst `"false"` | `"false"` |
+| Variable | Type | Description | Default |
+|----------|------|-------------|---------|
+| `banner.Version` | `string` | Semantic version or `git describe` output (e.g., `v1.2.3`, `v1.2.3-4-gabcdef1`) | `"dev"` |
+| `banner.BuildTime` | `string` | UTC build timestamp in RFC 3339 format (e.g., `2026-03-05T18:00:00+01:00`) | `"unknown"` |
+| `banner.Commit` | `string` | Short Git commit hash (e.g., `abcdef1`) | `"unknown"` |
+| `banner.Branch` | `string` | Git branch used for the build (e.g., `master`, `feature/foo`) | `"unknown"` |
+| `banner.Dirty` | `string` | `"true"` if the working tree had uncommitted changes at build time, otherwise `"false"` | `"false"` |
 
-**Wie funktioniert das?**
+**How does this work?**
 
-Go's Linker erlaubt es, Variablenwerte zur Compile-Zeit zu überschreiben. Die `-X`-Flags setzen die Paketvariablen direkt im kompilierten Binary, ohne den Quellcode zu ändern. `CurrentBuildInfo()` liest diese Werte dann zur Laufzeit aus.
+Go's linker allows overriding variable values at compile time. The `-X` flags set the package variables directly in the compiled binary without modifying source code. `CurrentBuildInfo()` then reads these values at runtime.
 
-### Makefile (empfohlen)
+### Makefile (Recommended)
 
-Das mitgelieferte `Makefile` sammelt Git-Metadaten automatisch über `scripts/ldflags.sh`:
+The included `Makefile` collects Git metadata automatically via `scripts/ldflags.sh`:
 
 ```bash
-make build-example   # Kompiliert das Example-Binary mit allen Metadaten
-make run-example     # Kompiliert und startet das Example
-make test            # Führt alle Unit-Tests aus (go test ./...)
-make lint            # go vet + gofmt-Check auf allen Paketen
-make clean           # Entfernt Build-Artefakte (bin/)
+make build-example   # Compiles the example binary with all metadata
+make run-example     # Compiles and runs the example
+make test            # Runs all unit tests (go test ./...)
+make lint            # go vet + gofmt check on all packages
+make clean           # Removes build artifacts (bin/)
 ```
 
-Für deinen eigenen Service:
+For your own service:
 
 ```bash
 make build PKG=./cmd/myservice BIN=bin/myservice
 ```
 
-### Manueller Build
+### Manual Build
 
-Wenn du das Makefile nicht verwenden möchtest, kannst du die ldflags direkt setzen:
+If you prefer not to use the Makefile, you can set the ldflags directly:
 
 ```bash
 VERSION=$(git describe --tags --always --dirty)
@@ -194,51 +194,51 @@ go build -ldflags "\
 
 ### `scripts/ldflags.sh` Helper
 
-Das POSIX-sh-kompatible Script gibt den vollständigen ldflags-String aus – ideal für CI/CD-Pipelines oder andere Build-Systeme:
+The POSIX-sh-compatible script outputs the complete ldflags string — ideal for CI/CD pipelines or other build systems:
 
 ```bash
-# Standard-Nutzung:
+# Standard usage:
 LDFLAGS="$(./scripts/ldflags.sh)" go build -ldflags "$LDFLAGS" ./cmd/myservice
 
-# Eigenen Modul-Pfad überschreiben (falls dein Import-Pfad abweicht):
+# Override module path (if your import path differs):
 MODULE=github.com/my/repo ./scripts/ldflags.sh
 ```
 
 ---
 
-## Banner-Styles
+## Banner Styles
 
-Die Library unterstützt **6 verschiedene Banner-Styles**, gesteuert über `Options.BannerStyle`. Wenn `Options.Banner` leer ist, bestimmt der Style den automatisch generierten Banner. Wenn `Options.Banner` gesetzt ist, wird der Wert **direkt verwendet** (Raw-Modus) und `BannerStyle` wird ignoriert.
+The library supports **6 different banner styles**, controlled via `Options.BannerStyle`. If `Options.Banner` is empty, the style determines the automatically generated banner. If `Options.Banner` is set, it is **used directly** (raw mode) and `BannerStyle` is ignored.
 
-**Style-Übersicht:**
+**Style Overview:**
 
-| Style | `BannerStyle`-Wert | Höhe | Font-Technik | Direkte Funktion |
-|-------|-------------------|------|-------------|-----------------|
-| Spring (Standard) | `"spring"` oder `""` | 5 Zeilen | Unterstriche / Pipes / Slashes | `SpringLikeBanner(name, asciiOnly)` |
-| Classic | `"classic"` | 5 Zeilen | Slashes / Backslashes / Underscores | `ClassicLikeBanner(name, asciiOnly)` |
-| Box | `"box"` | 3 Zeilen | Unicode-Box-Zeichen (oder ASCII) | `BoxBanner(name, asciiOnly)` |
-| Mini | `"mini"` | 3 Zeilen | Kompakte ASCII-Glyphen | `MiniBanner(name, asciiOnly)` |
-| Block | `"block"` | 5 Zeilen | Dicke `#`-Zeichen | `BlockBanner(name, asciiOnly)` |
-| Custom (Raw) | — | beliebig | Eigenes ASCII-Art | — |
+| Style | `BannerStyle` Value | Height | Font Technique | Direct Function |
+|-------|---------------------|--------|----------------|-----------------|
+| Spring (Default) | `"spring"` or `""` | 5 lines | Underscores / Pipes / Slashes | `SpringLikeBanner(name, asciiOnly)` |
+| Classic | `"classic"` | 5 lines | Slashes / Backslashes / Underscores | `ClassicLikeBanner(name, asciiOnly)` |
+| Box | `"box"` | 3 lines | Unicode box-drawing characters (or ASCII) | `BoxBanner(name, asciiOnly)` |
+| Mini | `"mini"` | 3 lines | Compact ASCII glyphs | `MiniBanner(name, asciiOnly)` |
+| Block | `"block"` | 5 lines | Thick `#` characters | `BlockBanner(name, asciiOnly)` |
+| Custom (Raw) | — | any | Custom ASCII art | — |
 
-**Zeichenunterstützung (alle Built-in-Fonts):**
+**Character Support (All Built-in Fonts):**
 
-Jeder eingebaute Font unterstützt die gleichen Zeichen: **A–Z**, **0–9**, **`-`**, **`_`** und **Leerzeichen**. Der `ServiceName` wird automatisch in Großbuchstaben umgewandelt. Nicht unterstützte Zeichen werden durch ein **`?`-Fallback-Glyph** ersetzt. Leerzeichen werden zu `-` normalisiert.
+Each built-in font supports the same characters: **A–Z**, **0–9**, **`-`**, **`_`**, and **space**. The `ServiceName` is automatically converted to uppercase. Unsupported characters are replaced by a **`?` fallback glyph**. Spaces are normalized to `-`.
 
-### Spring-Style (Standard)
+### Spring Style (Default)
 
-`BannerStyle: "spring"` (oder leer, da `"spring"` der Default ist) erzeugt einen großen ASCII-Art-Wordmark, inspiriert vom Spring-Boot-Startup-Banner. Der Font verwendet Unterstriche (`_`), Pipes (`|`), und Slashes (`/`, `\`).
+`BannerStyle: "spring"` (or empty, since `"spring"` is the default) produces a large ASCII art wordmark inspired by the Spring Boot startup banner. The font uses underscores (`_`), pipes (`|`), and slashes (`/`, `\`).
 
-Unterhalb des Wordmarks steht die Tagline `:: goStartyUpy ::` mit optionalem Environment-Suffix (nur wenn via `GO_STARTYUPY_ENV` erkannt, siehe [Environment-Erkennung](#environment-erkennung-go_startyupy_env)).
+Below the wordmark is the tagline `:: goStartyUpy ::` with an optional environment suffix (only when detected via `GO_STARTYUPY_ENV`, see [Environment Detection](#environment-detection-go_startyupy_env)).
 
 ```go
 opts := banner.Options{
     ServiceName: "my-svc",
-    // BannerStyle ist standardmäßig "spring"
+    // BannerStyle defaults to "spring"
 }
 ```
 
-**Beispiel-Ausgabe:**
+**Example Output:**
 
 ```
  __  __  __   __         ____   __     __  ____
@@ -250,23 +250,23 @@ opts := banner.Options{
  :: goStartyUpy ::
 ```
 
-**Direkter Aufruf** (ohne `Options`/`Render()`):
+**Direct call** (without `Options`/`Render()`):
 
 ```go
 art := banner.SpringLikeBanner("my-svc", false)
 fmt.Println(art)
 ```
 
-### Classic-Style
+### Classic Style
 
-`BannerStyle: "classic"` erzeugt einen Banner mit einer Slash/Backslash/Underscore-Schriftart, die an traditionelle Java-Framework-Startup-Banner erinnert. Unterhalb des Wordmarks werden **zwei konfigurierbare Taglines** gedruckt:
+`BannerStyle: "classic"` produces a banner with a slash/backslash/underscore font style reminiscent of traditional Java framework startup banners. Below the wordmark, **two configurable taglines** are printed:
 
-| Tagline | Default-Wert | Beispiel |
-|---------|-------------|---------|
+| Tagline | Default Value | Example |
+|---------|---------------|---------|
 | `Tagline1` | `"<ServiceName> <Version>"` | `"my-service v1.2.3"` |
 | `Tagline2` | `"Build: <BuildTime>  Commit: <Commit> [Branch] [Dirty]"` | `"Build: 2026-03-05  Commit: abcdef1  Branch: master"` |
 
-Beide Taglines können über `Options.Tagline1` und `Options.Tagline2` überschrieben werden:
+Both taglines can be overridden via `Options.Tagline1` and `Options.Tagline2`:
 
 ```go
 opts := banner.Options{
@@ -277,27 +277,27 @@ opts := banner.Options{
 }
 ```
 
-**`ShowDetails`-Option:** Steuert, ob der Key/Value-Info-Block (Service, Version, Go-Version etc.) im Classic-Modus angezeigt wird. Es handelt sich um einen `*bool`-Pointer. Standardmäßig werden Details angezeigt (`nil` = true). Explizit auf `false` setzen, um sie auszublenden:
+**`ShowDetails` Option:** Controls whether the key/value info block (Service, Version, Go version, etc.) is displayed in classic mode. This is a `*bool` pointer. By default, details are shown (`nil` = true). Set explicitly to `false` to hide them:
 
 ```go
 hide := false
 opts := banner.Options{
     ServiceName: "my-svc",
     BannerStyle: "classic",
-    ShowDetails: &hide,   // Details-Block wird nicht gedruckt
+    ShowDetails: &hide,   // Details block will not be printed
 }
 ```
 
-**Direkter Aufruf:**
+**Direct call:**
 
 ```go
 art := banner.ClassicLikeBanner("my-svc", false)
 fmt.Println(art)
 ```
 
-### Box-Style
+### Box Style
 
-`BannerStyle: "box"` erzeugt den klassischen Box-Banner mit Unicode-Box-Zeichen (`┌`, `─`, `┐`, `│`, `└`, `┘`). Der Servicename wird zentriert in der Box angezeigt.
+`BannerStyle: "box"` produces the classic box banner using Unicode box-drawing characters (`┌`, `─`, `┐`, `│`, `└`, `┘`). The service name is centered inside the box.
 
 ```go
 opts := banner.Options{
@@ -306,7 +306,7 @@ opts := banner.Options{
 }
 ```
 
-**Ausgabe:**
+**Output:**
 
 ```
 ┌───────────────────────────┐
@@ -314,7 +314,7 @@ opts := banner.Options{
 └───────────────────────────┘
 ```
 
-**ASCII-Only-Modus:** Setze `Options.ASCIIOnly = true`, um Unicode-Box-Zeichen durch plain ASCII zu ersetzen (`+`, `-`, `|`):
+**ASCII-Only Mode:** Set `Options.ASCIIOnly = true` to replace Unicode box-drawing characters with plain ASCII (`+`, `-`, `|`):
 
 ```
 +---------------------------+
@@ -322,16 +322,16 @@ opts := banner.Options{
 +---------------------------+
 ```
 
-**Direkter Aufruf:**
+**Direct call:**
 
 ```go
 art := banner.BoxBanner("my-service", true) // true = ASCII-only
 fmt.Println(art)
 ```
 
-### Mini-Style
+### Mini Style
 
-`BannerStyle: "mini"` erzeugt einen **kompakten 3-zeiligen** ASCII-Art-Wordmark. Ideal für schmale Terminals oder Logs, in denen wenig vertikaler Platz zur Verfügung steht.
+`BannerStyle: "mini"` produces a **compact 3-line** ASCII art wordmark. Ideal for narrow terminals or logs with limited vertical space.
 
 ```go
 opts := banner.Options{
@@ -340,7 +340,7 @@ opts := banner.Options{
 }
 ```
 
-**Beispiel-Ausgabe (`"GO"`):**
+**Example Output (`"GO"`):**
 
 ```
  __  _
@@ -348,16 +348,16 @@ opts := banner.Options{
 |__||_|
 ```
 
-**Direkter Aufruf:**
+**Direct call:**
 
 ```go
 art := banner.MiniBanner("my-svc", false)
 fmt.Println(art)
 ```
 
-### Block-Style
+### Block Style
 
-`BannerStyle: "block"` erzeugt einen **dicken 5-zeiligen** ASCII-Art-Wordmark, bei dem jeder Buchstabe aus `#`-Zeichen aufgebaut ist. Gut sichtbar auch in lauten Log-Ausgaben.
+`BannerStyle: "block"` produces a **thick 5-line** ASCII art wordmark where each letter is built from `#` characters. Highly visible even in noisy log output.
 
 ```go
 opts := banner.Options{
@@ -366,7 +366,7 @@ opts := banner.Options{
 }
 ```
 
-**Beispiel-Ausgabe (`"GO"`):**
+**Example Output (`"GO"`):**
 
 ```
   ####   ###
@@ -376,7 +376,7 @@ opts := banner.Options{
   ####   ###
 ```
 
-**Direkter Aufruf:**
+**Direct call:**
 
 ```go
 art := banner.BlockBanner("my-svc", false)
@@ -385,7 +385,7 @@ fmt.Println(art)
 
 ### Custom Banner (Raw)
 
-Wenn du dein eigenes ASCII-Art verwenden möchtest, setze einfach `Options.Banner`. Der Wert wird **direkt verwendet**, ohne jede Verarbeitung. `BannerStyle` wird in diesem Fall ignoriert.
+To use your own ASCII art, simply set `Options.Banner`. The value is **used directly** without any processing. `BannerStyle` is ignored in this case.
 
 ```go
 opts := banner.Options{
@@ -397,225 +397,225 @@ opts := banner.Options{
 }
 ```
 
-**Tipp:** Du kannst Tools wie [patorjk.com/software/taag](http://patorjk.com/software/taag/) nutzen, um eigene ASCII-Art-Fonts zu generieren und sie als `Banner`-String einzufügen.
+**Tip:** You can use tools like [patorjk.com/software/taag](http://patorjk.com/software/taag/) to generate custom ASCII art fonts and insert them as the `Banner` string.
 
-### Banner-Breite (`BannerWidth`)
+### Banner Width (`BannerWidth`)
 
-Setze `Options.BannerWidth` auf einen positiven Integer, um jede Banner-Zeile auf diese Maximalbreite **hart abzuschneiden**. Ein Wert von `0` (Standard) bedeutet keine Beschränkung.
+Set `Options.BannerWidth` to a positive integer to **hard-truncate** each banner line to that maximum width. A value of `0` (default) means no restriction.
 
 ```go
 opts := banner.Options{
     ServiceName: "my-very-long-service-name",
-    BannerWidth: 60, // Jede Zeile wird nach 60 Zeichen abgeschnitten
+    BannerWidth: 60, // Each line is truncated after 60 characters
 }
 ```
 
-Das ist nützlich, wenn der generierte Banner zu breit für dein Terminal oder dein Log-System ist.
+This is useful when the generated banner is too wide for your terminal or logging system.
 
 ---
 
-## Environment-Erkennung (`GO_STARTYUPY_ENV`)
+## Environment Detection (`GO_STARTYUPY_ENV`)
 
-goStartyUpy unterstützt eine **automatische Environment-Erkennung** über die Umgebungsvariable `GO_STARTYUPY_ENV`. Das Verhalten ist wie folgt:
+goStartyUpy supports **automatic environment detection** via the `GO_STARTYUPY_ENV` environment variable. The behavior is as follows:
 
-| Szenario | `Options.Environment` | `GO_STARTYUPY_ENV` | Ergebnis im Banner |
-|----------|----------------------|--------------------|--------------------|
-| Explizit gesetzt | `"production"` | egal | Kein Suffix angezeigt |
-| Aus Env-Var erkannt | `""` (leer) | `"staging"` | Suffix `(staging)` wird angezeigt |
-| Nichts gesetzt | `""` (leer) | nicht gesetzt / leer | Kein Suffix angezeigt |
+| Scenario | `Options.Environment` | `GO_STARTYUPY_ENV` | Result in Banner |
+|----------|----------------------|--------------------|------------------|
+| Explicitly set | `"production"` | any | No suffix displayed |
+| Detected from env var | `""` (empty) | `"staging"` | Suffix `(staging)` is displayed |
+| Nothing set | `""` (empty) | not set / empty | No suffix displayed |
 
-**Regel:** Der Environment-Suffix (z.B. `(staging)`, `(dev)`) erscheint im Banner-Header **nur dann**, wenn der Wert tatsächlich aus der Umgebungsvariable `GO_STARTYUPY_ENV` stammt. Wenn `Options.Environment` explizit im Code gesetzt wird, wird **kein** Suffix angezeigt – der Wert wird intern verwendet, aber nicht im Banner sichtbar gemacht.
+**Rule:** The environment suffix (e.g., `(staging)`, `(dev)`) appears in the banner header **only** when the value originates from the `GO_STARTYUPY_ENV` environment variable. If `Options.Environment` is explicitly set in code, **no** suffix is displayed — the value is used internally but not shown in the banner.
 
-**Warum dieses Design?**
+**Why this design?**
 
-- Explizit gesetzte Werte im Code sind dem Entwickler bekannt → kein visueller Hinweis nötig.
-- Werte aus Umgebungsvariablen könnten unerwartet sein (z.B. falsche Konfiguration in einer CI/CD-Pipeline) → visueller Hinweis im Banner hilft beim Debugging.
+- Explicitly set values in code are known to the developer — no visual hint needed.
+- Values from environment variables may be unexpected (e.g., incorrect configuration in a CI/CD pipeline) — a visual hint in the banner helps with debugging.
 
-**Beispiel mit Umgebungsvariable:**
+**Example with environment variable:**
 
 ```bash
 export GO_STARTYUPY_ENV=staging
 go run ./cmd/myservice/
 ```
 
-Der Banner zeigt dann:
+The banner then shows:
 
 ```
  :: goStartyUpy :: (staging)
 ```
 
-**Beispiel ohne Umgebungsvariable (explizit):**
+**Example without environment variable (explicit):**
 
 ```go
 opts := banner.Options{
     ServiceName: "my-service",
-    Environment: "production",  // Explizit → kein Suffix im Banner
+    Environment: "production",  // Explicit — no suffix in the banner
 }
 ```
 
 ---
 
-## Options-Referenz (vollständig)
+## Options Reference (Complete)
 
-Die `banner.Options`-Struct steuert alle Aspekte des Banner-Renderings. Hier ist jedes Feld mit Typ, Default-Wert und Erklärung dokumentiert:
+The `banner.Options` struct controls all aspects of banner rendering. Each field is documented with its type, default value, and description:
 
-| Feld | Typ | Default | Beschreibung |
-|------|-----|---------|-------------|
-| `ServiceName` | `string` | `""` | Name des Services. Wird im Banner und in der Info-Sektion angezeigt. Wenn leer, wird `"SERVICE"` als Fallback verwendet. |
-| `Environment` | `string` | `""` | Laufzeitumgebung (z.B. `"production"`, `"staging"`). Wenn leer, wird `GO_STARTYUPY_ENV` geprüft. Erscheint in der Info-Sektion. |
-| `Banner` | `string` | `""` | Eigenes ASCII-Art. Wenn gesetzt, wird die automatische Banner-Generierung übersprungen und dieser Text direkt verwendet. |
-| `BannerStyle` | `string` | `"spring"` | Steuert den automatisch generierten Banner-Style: `"spring"`, `"classic"`, `"box"`, `"mini"`, `"block"`. Wird ignoriert wenn `Banner` gesetzt ist. |
-| `BannerWidth` | `int` | `0` | Maximale Breite pro Banner-Zeile. `0` = keine Beschränkung. Positive Werte schneiden jede Zeile hart ab. |
-| `Separator` | `string` | `"═"` (Unicode) | Zeichen für die Trennlinie zwischen Banner und Info-Sektion. Im ASCII-Only-Modus wird `"="` verwendet. |
-| `ASCIIOnly` | `bool` | `false` | Wenn `true`, werden alle Unicode-Zeichen (Box-Drawing, Separator) durch plain ASCII ersetzt. |
-| `Color` | `bool` | `false` | Wenn `true`, wird die Ausgabe mit ANSI-Escape-Sequenzen eingefärbt. Standardmäßig reiner Text. |
-| `Extra` | `map[string]string` | `nil` | Zusätzliche Key/Value-Paare, die in der Info-Sektion angezeigt werden (z.B. `"HTTP": ":8080"`). |
-| `Tagline1` | `string` | `""` | Überschreibt die erste Tagline im Classic-Style. Wenn leer, wird der Default generiert. |
-| `Tagline2` | `string` | `""` | Überschreibt die zweite Tagline im Classic-Style. Wenn leer, wird der Default generiert. |
-| `ShowDetails` | `*bool` | `nil` | Steuert die Anzeige des Detail-Blocks im Classic-Style. `nil` = anzeigen, `&false` = ausblenden. |
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `ServiceName` | `string` | `""` | Name of the service. Displayed in the banner and the info section. If empty, `"SERVICE"` is used as a fallback. |
+| `Environment` | `string` | `""` | Runtime environment (e.g., `"production"`, `"staging"`). If empty, `GO_STARTYUPY_ENV` is checked. Appears in the info section. |
+| `Banner` | `string` | `""` | Custom ASCII art. If set, automatic banner generation is skipped and this text is used directly. |
+| `BannerStyle` | `string` | `"spring"` | Controls the automatically generated banner style: `"spring"`, `"classic"`, `"box"`, `"mini"`, `"block"`. Ignored when `Banner` is set. |
+| `BannerWidth` | `int` | `0` | Maximum width per banner line. `0` = no restriction. Positive values hard-truncate each line. |
+| `Separator` | `string` | `"═"` (Unicode) | Character for the separator line between the banner and info section. In ASCII-only mode, `"="` is used. |
+| `ASCIIOnly` | `bool` | `false` | When `true`, all Unicode characters (box-drawing, separator) are replaced with plain ASCII. |
+| `Color` | `bool` | `false` | When `true`, the output is colored with ANSI escape sequences. Plain text by default. |
+| `Extra` | `map[string]string` | `nil` | Additional key/value pairs displayed in the info section (e.g., `"HTTP": ":8080"`). |
+| `Tagline1` | `string` | `""` | Overrides the first tagline in classic style. If empty, the default is generated. |
+| `Tagline2` | `string` | `""` | Overrides the second tagline in classic style. If empty, the default is generated. |
+| `ShowDetails` | `*bool` | `nil` | Controls display of the details block in classic style. `nil` = show, `&false` = hide. |
 
-**Interne Felder** (nicht direkt vom Benutzer gesetzt):
+**Internal Fields** (not set directly by the user):
 
-| Feld | Typ | Beschreibung |
-|------|-----|-------------|
-| `EnvironmentFromEnv` | `bool` | Wird intern auf `true` gesetzt, wenn das Environment aus `GO_STARTYUPY_ENV` stammt. Steuert die Suffix-Anzeige. |
+| Field | Type | Description |
+|-------|------|-------------|
+| `EnvironmentFromEnv` | `bool` | Set internally to `true` when the environment originates from `GO_STARTYUPY_ENV`. Controls the suffix display. |
 
 ---
 
-## Check-System
+## Check System
 
-Das `checks`-Paket bietet ein vollständiges Startup-Check-System, um Abhängigkeiten (Datenbanken, Caches, HTTP-Dienste) vor dem Akzeptieren von Traffic zu verifizieren.
+The `checks` package provides a complete startup check system for verifying dependencies (databases, caches, HTTP services) before accepting traffic.
 
-### `Check`-Interface
+### `Check` Interface
 
-Jeder Startup-Check implementiert das `Check`-Interface:
+Every startup check implements the `Check` interface:
 
 ```go
 type Check interface {
-    Name() string                        // Menschenlesbarer Name des Checks
-    Run(ctx context.Context) Result      // Führt den Check aus, gibt Result zurück
+    Name() string                        // Human-readable name of the check
+    Run(ctx context.Context) Result      // Executes the check, returns Result
 }
 ```
 
-Das `Result`-Struct enthält das Ergebnis:
+The `Result` struct contains the outcome:
 
 ```go
 type Result struct {
-    Name     string        // Name des Checks
-    OK       bool          // true = bestanden, false = fehlgeschlagen
-    Duration time.Duration // Ausführungsdauer
-    Error    string        // Fehlermeldung (leer bei Erfolg)
+    Name     string        // Name of the check
+    OK       bool          // true = passed, false = failed
+    Duration time.Duration // Execution duration
+    Error    string        // Error message (empty on success)
 }
 ```
 
-**Wichtig:** Checks paniken **niemals**. Alle Panics innerhalb von Check-Funktionen werden automatisch abgefangen und als `Result` mit `OK: false` und einer entsprechenden Fehlermeldung zurückgegeben.
+**Important:** Checks **never** panic. All panics within check functions are automatically caught and returned as a `Result` with `OK: false` and a corresponding error message.
 
-### `Runner` — Check-Ausführung
+### `Runner` — Check Execution
 
-Der `Runner` führt Checks mit konfigurierbarem Timeout aus. Er unterstützt sowohl **parallele** als auch **sequenzielle** Ausführung:
+The `Runner` executes checks with a configurable timeout. It supports both **parallel** and **sequential** execution:
 
 ```go
 runner := checks.Runner{
-    TimeoutPerCheck: 2 * time.Second,  // Timeout pro einzelnem Check
-    Parallel:        true,              // true = parallel, false = sequenziell
+    TimeoutPerCheck: 2 * time.Second,  // Timeout per individual check
+    Parallel:        true,              // true = parallel, false = sequential
 }
 results := runner.Run(ctx, check1, check2, check3)
 ```
 
-| Feld | Typ | Default | Beschreibung |
-|------|-----|---------|-------------|
-| `TimeoutPerCheck` | `time.Duration` | `0` | Timeout pro Check. `0` = kein zusätzliches Timeout (nur der übergebene Context). |
-| `Parallel` | `bool` | `false` | `true` = alle Checks laufen in eigenen Goroutinen gleichzeitig. `false` = sequenzielle Ausführung in Eingabereihenfolge. |
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `TimeoutPerCheck` | `time.Duration` | `0` | Timeout per check. `0` = no additional timeout (only the provided context). |
+| `Parallel` | `bool` | `false` | `true` = all checks run concurrently in their own goroutines. `false` = sequential execution in input order. |
 
-**`DefaultRunner()`** gibt einen vorkonigurierten Runner mit 2 Sekunden Timeout und paralleler Ausführung zurück:
+**`DefaultRunner()`** returns a preconfigured runner with a 2-second timeout and parallel execution:
 
 ```go
 runner := checks.DefaultRunner()
-// Äquivalent zu:
+// Equivalent to:
 // runner := checks.Runner{TimeoutPerCheck: 2 * time.Second, Parallel: true}
 ```
 
-**Ergebnis-Reihenfolge:** Unabhängig vom Ausführungsmodus (parallel oder sequenziell) werden die Ergebnisse **immer in der gleichen Reihenfolge** wie die Eingabe-Checks zurückgegeben. Das macht die Ausgabe deterministisch und testbar.
+**Result Order:** Regardless of the execution mode (parallel or sequential), the results are **always returned in the same order** as the input checks. This makes the output deterministic and testable.
 
-### Built-in Checks (4 Typen)
+### Built-in Checks (4 Types)
 
-#### `SQLPingCheck` — SQL-Datenbank
+#### `SQLPingCheck` — SQL Database
 
-Pingt eine `*sql.DB`-Verbindung via `PingContext`. Nützlich für PostgreSQL, MySQL, SQLite und jeden anderen `database/sql`-kompatiblen Treiber.
+Pings an `*sql.DB` connection via `PingContext`. Useful for PostgreSQL, MySQL, SQLite, and any other `database/sql`-compatible driver.
 
 ```go
 check := checks.SQLPingCheck{
-    DB:        db,           // *sql.DB Handle (muss nicht nil sein)
-    NameLabel: "postgres",   // Menschenlesbarer Name
+    DB:        db,           // *sql.DB handle (must not be nil)
+    NameLabel: "postgres",   // Human-readable name
 }
 ```
 
-| Feld | Typ | Beschreibung |
-|------|-----|-------------|
-| `DB` | `*sql.DB` | Das Datenbank-Handle. Wenn `nil`, schlägt der Check mit `"sql.DB is nil"` fehl. |
-| `NameLabel` | `string` | Name des Checks in der Ausgabe. |
+| Field | Type | Description |
+|-------|------|-------------|
+| `DB` | `*sql.DB` | The database handle. If `nil`, the check fails with `"sql.DB is nil"`. |
+| `NameLabel` | `string` | Name of the check in the output. |
 
-#### `TCPDialCheck` — TCP-Port
+#### `TCPDialCheck` — TCP Port
 
-Prüft, ob ein TCP-Endpunkt erreichbar ist, indem eine Verbindung hergestellt und sofort wieder geschlossen wird. Ideal für Datenbanken, Caches oder andere TCP-basierte Dienste.
+Checks whether a TCP endpoint is reachable by establishing a connection and immediately closing it. Ideal for databases, caches, or other TCP-based services.
 
 ```go
 check := checks.TCPDialCheck{
-    Address: "localhost:5432",   // host:port Format
-    Label:   "postgres-tcp",     // Menschenlesbarer Name
+    Address: "localhost:5432",   // host:port format
+    Label:   "postgres-tcp",     // Human-readable name
 }
 ```
 
-| Feld | Typ | Beschreibung |
-|------|-----|-------------|
-| `Address` | `string` | TCP-Adresse im `host:port`-Format (z.B. `"localhost:5432"`, `"redis:6379"`). |
-| `Label` | `string` | Name des Checks in der Ausgabe. |
+| Field | Type | Description |
+|-------|------|-------------|
+| `Address` | `string` | TCP address in `host:port` format (e.g., `"localhost:5432"`, `"redis:6379"`). |
+| `Label` | `string` | Name of the check in the output. |
 
-#### `HTTPGetCheck` — HTTP-Endpunkt
+#### `HTTPGetCheck` — HTTP Endpoint
 
-Führt einen HTTP-GET-Request aus und prüft, ob der Status-Code in einem erwarteten Bereich liegt. Nützlich für Health-Endpoints anderer Services.
+Performs an HTTP GET request and checks whether the status code falls within an expected range. Useful for health endpoints of other services.
 
 ```go
 check := checks.HTTPGetCheck{
     URL:               "http://localhost:8080/healthz",
     Label:             "api-health",
-    ExpectedStatusMin: 200,   // Optional, Default: 200
-    ExpectedStatusMax: 299,   // Optional, Default: 399
+    ExpectedStatusMin: 200,   // Optional, default: 200
+    ExpectedStatusMax: 299,   // Optional, default: 399
 }
 ```
 
-| Feld | Typ | Default | Beschreibung |
-|------|-----|---------|-------------|
-| `URL` | `string` | — | Vollständige URL zum Proben (z.B. `"http://localhost:8080/healthz"`). |
-| `Label` | `string` | — | Name des Checks in der Ausgabe. |
-| `ExpectedStatusMin` | `int` | `200` | Untere Grenze (inklusiv) des akzeptablen Status-Code-Bereichs. |
-| `ExpectedStatusMax` | `int` | `399` | Obere Grenze (inklusiv) des akzeptablen Status-Code-Bereichs. |
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `URL` | `string` | — | Full URL to probe (e.g., `"http://localhost:8080/healthz"`). |
+| `Label` | `string` | — | Name of the check in the output. |
+| `ExpectedStatusMin` | `int` | `200` | Lower bound (inclusive) of the acceptable status code range. |
+| `ExpectedStatusMax` | `int` | `399` | Upper bound (inclusive) of the acceptable status code range. |
 
-**Hinweis:** Der HTTP-Client verwendet kein eigenes Timeout – er verlässt sich auf den Context-Deadline des Runners, damit das Verhalten über alle Check-Typen konsistent ist.
+**Note:** The HTTP client does not use its own timeout — it relies on the runner's context deadline so that behavior is consistent across all check types.
 
 #### `RedisPingCheck` — Redis via Raw TCP
 
-Sendet einen RESP-kodierten `PING`-Befehl über eine rohe TCP-Verbindung und erwartet `+PONG` als Antwort. **Kein Redis-Client oder externe Dependency nötig** — funktioniert mit jedem Redis-kompatiblen Server.
+Sends a RESP-encoded `PING` command over a raw TCP connection and expects `+PONG` as the response. **No Redis client or external dependency required** — works with any Redis-compatible server.
 
 ```go
 check := checks.RedisPingCheck{
-    Address: "localhost:6379",  // host:port des Redis-Servers
-    Label:   "redis-ping",     // Menschenlesbarer Name
+    Address: "localhost:6379",  // host:port of the Redis server
+    Label:   "redis-ping",     // Human-readable name
 }
 ```
 
-| Feld | Typ | Beschreibung |
-|------|-----|-------------|
-| `Address` | `string` | TCP-Adresse des Redis-Servers im `host:port`-Format. |
-| `Label` | `string` | Name des Checks in der Ausgabe. |
+| Field | Type | Description |
+|-------|------|-------------|
+| `Address` | `string` | TCP address of the Redis server in `host:port` format. |
+| `Label` | `string` | Name of the check in the output. |
 
-**Technisches Detail:** Der Check sendet das RESP-Array `*1\r\n$4\r\nPING\r\n` und erwartet `+PONG\r\n`. Bei unerwarteten Antworten schlägt der Check fehl mit der tatsächlichen Reply im Fehlertext.
+**Technical Detail:** The check sends the RESP array `*1\r\n$4\r\nPING\r\n` and expects `+PONG\r\n`. On unexpected responses, the check fails with the actual reply in the error text.
 
-### Custom Checks erstellen
+### Creating Custom Checks
 
-#### Funktions-basierter Check (`checks.New`)
+#### Function-Based Check (`checks.New`)
 
-Der einfachste Weg, einen eigenen Check zu erstellen. Übergib einen Label-String und eine Funktion, die `error` zurückgibt (`nil` = bestanden):
+The simplest way to create a custom check. Pass a label string and a function that returns `error` (`nil` = passed):
 
 ```go
 envCheck := checks.New("env-DATABASE_URL", func(ctx context.Context) error {
@@ -626,11 +626,11 @@ envCheck := checks.New("env-DATABASE_URL", func(ctx context.Context) error {
 })
 ```
 
-Wenn `label` leer ist, wird `"custom"` als Fallback verwendet. Wenn `fn` `nil` ist, schlägt der Check immer mit `"nil check function"` fehl.
+If `label` is empty, `"custom"` is used as a fallback. If `fn` is `nil`, the check always fails with `"nil check function"`.
 
-#### Boolean-Check (`checks.Bool`)
+#### Boolean Check (`checks.Bool`)
 
-Für Checks, die ein Boolean-Ergebnis plus optionalen Fehler zurückgeben:
+For checks that return a boolean result plus an optional error:
 
 ```go
 featureFlag := checks.Bool("feature-flag", func(ctx context.Context) (bool, error) {
@@ -638,16 +638,16 @@ featureFlag := checks.Bool("feature-flag", func(ctx context.Context) (bool, erro
 })
 ```
 
-Der Check besteht **nur**, wenn `ok == true` **und** `err == nil`. Wenn `ok == false` und `err == nil`, wird der Fehler `"check returned false"` erzeugt.
+The check passes **only** when `ok == true` **and** `err == nil`. If `ok == false` and `err == nil`, the error `"check returned false"` is produced.
 
-#### Gruppierter Check (`checks.NewGroup`)
+#### Grouped Check (`checks.NewGroup`)
 
-Fasst mehrere Checks in einen einzelnen zusammen. Die Gruppe besteht **nur**, wenn **alle** Kinder bestehen:
+Combines multiple checks into a single one. The group passes **only** when **all** children pass:
 
 ```go
 deps := checks.NewGroup("dependencies", checks.GroupOptions{
-    Parallel:        true,                  // Kinder parallel ausführen
-    TimeoutPerCheck: 3 * time.Second,       // Timeout pro Kind-Check
+    Parallel:        true,                  // Run children in parallel
+    TimeoutPerCheck: 3 * time.Second,       // Timeout per child check
 },
     checks.SQLPingCheck{DB: db, NameLabel: "postgres"},
     checks.TCPDialCheck{Address: "localhost:6379", Label: "redis-tcp"},
@@ -655,27 +655,27 @@ deps := checks.NewGroup("dependencies", checks.GroupOptions{
 )
 ```
 
-| `GroupOptions`-Feld | Typ | Default | Beschreibung |
-|---------------------|-----|---------|-------------|
-| `Parallel` | `bool` | `false` | `true` = Kind-Checks parallel ausführen. |
-| `TimeoutPerCheck` | `time.Duration` | `0` | Timeout pro Kind-Check. `0` = kein zusätzliches Timeout. |
+| `GroupOptions` Field | Type | Default | Description |
+|----------------------|------|---------|-------------|
+| `Parallel` | `bool` | `false` | `true` = run child checks in parallel. |
+| `TimeoutPerCheck` | `time.Duration` | `0` | Timeout per child check. `0` = no additional timeout. |
 
-Bei Fehlern enthält der Error-String eine kompakte Zusammenfassung: `"2 failing: postgres: connection refused; redis-tcp: dial timeout"`.
+On failures, the error string contains a compact summary: `"2 failing: postgres: connection refused; redis-tcp: dial timeout"`.
 
-#### Eigenes `Check`-Interface implementieren
+#### Implementing the `Check` Interface
 
-Für komplexere Szenarien kannst du das `Check`-Interface direkt implementieren:
+For more complex scenarios, you can implement the `Check` interface directly:
 
 ```go
 type MyCustomCheck struct {
-    // eigene Felder
+    // custom fields
 }
 
 func (c MyCustomCheck) Name() string { return "my-custom" }
 
 func (c MyCustomCheck) Run(ctx context.Context) checks.Result {
     start := time.Now()
-    // ... deine Logik ...
+    // ... your logic ...
     return checks.Result{
         Name:     c.Name(),
         OK:       true,
@@ -684,32 +684,32 @@ func (c MyCustomCheck) Run(ctx context.Context) checks.Result {
 }
 ```
 
-### Parallele vs. sequenzielle Ausführung
+### Parallel vs. Sequential Execution
 
-| Modus | `Runner.Parallel` | Verhalten |
-|-------|-------------------|-----------|
-| Parallel | `true` | Jeder Check läuft in einer eigenen Goroutine. Der Runner wartet, bis alle fertig sind. Schnellster Gesamtdurchlauf. |
-| Sequenziell | `false` | Checks laufen nacheinander in der Eingabereihenfolge. Ein langsamer Check blockiert die nachfolgenden. |
+| Mode | `Runner.Parallel` | Behavior |
+|------|-------------------|----------|
+| Parallel | `true` | Each check runs in its own goroutine. The runner waits until all are finished. Fastest overall throughput. |
+| Sequential | `false` | Checks run one after another in input order. A slow check blocks subsequent ones. |
 
-In **beiden Modi** werden die Ergebnisse in der **gleichen Reihenfolge** wie die Eingabe zurückgegeben.
+In **both modes**, the results are returned in the **same order** as the input.
 
 ---
 
-## Modul-Version vs. Build-Version
+## Module Version vs. Build Version
 
-goStartyUpy unterscheidet strikt zwischen **zwei verschiedenen Versionswerten**, die unabhängig voneinander sind:
+goStartyUpy strictly distinguishes between **two different version values** that are independent of each other:
 
-| Wert | Paket | Zweck | Gesetzt durch |
-|------|-------|-------|--------------|
-| `version.ModuleVersion` | `version` | Release-Version der **Library** selbst (z.B. `"0.1.0"`) | Im Quellcode (`version/version.go`) |
-| `banner.Version` | `banner` | Build-Version des **Service-Binaries** (z.B. `"v1.2.3"`) | `-ldflags` zur Compile-Zeit |
+| Value | Package | Purpose | Set by |
+|-------|---------|---------|--------|
+| `version.ModuleVersion` | `version` | Release version of the **library** itself (e.g., `"0.1.0"`) | In the source code (`version/version.go`) |
+| `banner.Version` | `banner` | Build version of the **service binary** (e.g., `"v1.2.3"`) | `-ldflags` at compile time |
 
-**Warum zwei Versionen?**
+**Why two versions?**
 
-- `ModuleVersion` sagt dir, welche Version von goStartyUpy du als Dependency verwendest.
-- `banner.Version` sagt dir, welche Version deines eigenen Services gerade läuft.
+- `ModuleVersion` tells you which version of goStartyUpy you are using as a dependency.
+- `banner.Version` tells you which version of your own service is currently running.
 
-Beides sind unabhängige Werte. Dein Service kann `goStartyUpy@v0.1.0` verwenden und trotzdem als `v3.7.2` getaggt sein.
+Both are independent values. Your service can use `goStartyUpy@v0.1.0` and still be tagged as `v3.7.2`.
 
 ```go
 import "github.com/keksclan/goStartyUpy/version"
@@ -719,35 +719,35 @@ fmt.Println("goStartyUpy Library:", version.ModuleVersion) // "0.1.0"
 
 ---
 
-## `BuildInfo`-Struct
+## `BuildInfo` Struct
 
-`CurrentBuildInfo()` erstellt ein `BuildInfo`-Struct mit allen Build- und Runtime-Metadaten. Dieses Struct wird an `Render()` und `RenderWithChecks()` übergeben:
+`CurrentBuildInfo()` creates a `BuildInfo` struct with all build and runtime metadata. This struct is passed to `Render()` and `RenderWithChecks()`:
 
 ```go
 info := banner.CurrentBuildInfo()
 ```
 
-| Feld | Typ | Quelle | Beschreibung |
-|------|-----|--------|-------------|
-| `Version` | `string` | `-ldflags` | Build-Version des Services (Default: `"dev"`) |
-| `BuildTime` | `string` | `-ldflags` | UTC-Build-Zeitstempel (Default: `"unknown"`) |
-| `Commit` | `string` | `-ldflags` | Kurzer Git-Commit-Hash (Default: `"unknown"`) |
-| `Branch` | `string` | `-ldflags` | Git-Branch (Default: `"unknown"`) |
-| `Dirty` | `string` | `-ldflags` | `"true"` / `"false"` für uncommitted Changes |
-| `GoVersion` | `string` | `runtime.Version()` | Go-Version (z.B. `"go1.26"`) |
-| `OS` | `string` | `runtime.GOOS` | Betriebssystem (z.B. `"linux"`, `"darwin"`) |
-| `Arch` | `string` | `runtime.GOARCH` | CPU-Architektur (z.B. `"amd64"`, `"arm64"`) |
-| `PID` | `int` | `os.Getpid()` | Prozess-ID des laufenden Binaries |
+| Field | Type | Source | Description |
+|-------|------|--------|-------------|
+| `Version` | `string` | `-ldflags` | Build version of the service (default: `"dev"`) |
+| `BuildTime` | `string` | `-ldflags` | UTC build timestamp (default: `"unknown"`) |
+| `Commit` | `string` | `-ldflags` | Short Git commit hash (default: `"unknown"`) |
+| `Branch` | `string` | `-ldflags` | Git branch (default: `"unknown"`) |
+| `Dirty` | `string` | `-ldflags` | `"true"` / `"false"` for uncommitted changes |
+| `GoVersion` | `string` | `runtime.Version()` | Go version (e.g., `"go1.26"`) |
+| `OS` | `string` | `runtime.GOOS` | Operating system (e.g., `"linux"`, `"darwin"`) |
+| `Arch` | `string` | `runtime.GOARCH` | CPU architecture (e.g., `"amd64"`, `"arm64"`) |
+| `PID` | `int` | `os.Getpid()` | Process ID of the running binary |
 
 ---
 
-## Render-Funktionen
+## Render Functions
 
-Das `banner`-Paket bietet zwei Haupt-Render-Funktionen:
+The `banner` package provides two main render functions:
 
 ### `Render(opts Options, info BuildInfo) string`
 
-Erzeugt den vollständigen Startup-Banner **ohne Checks**. Gibt den gesamten Banner als String zurück (bereit für `fmt.Print`):
+Produces the complete startup banner **without checks**. Returns the entire banner as a string (ready for `fmt.Print`):
 
 ```go
 output := banner.Render(opts, info)
@@ -756,14 +756,14 @@ fmt.Print(output)
 
 ### `RenderWithChecks(opts Options, info BuildInfo, results []checks.Result) string`
 
-Erzeugt den vollständigen Startup-Banner **mit Check-Ergebnissen**. Die Check-Ergebnisse werden als Liste am Ende des Banners angehängt:
+Produces the complete startup banner **with check results**. The check results are appended as a list at the end of the banner:
 
 ```go
 output := banner.RenderWithChecks(opts, info, results)
 fmt.Print(output)
 ```
 
-**Ausgabeformat der Checks:**
+**Check Output Format:**
 
 ```
 Checks:
@@ -774,91 +774,91 @@ Checks:
 Startup Complete
 ```
 
-- `[OK]` = Check bestanden (grün bei `Color: true`)
-- `[FAIL]` = Check fehlgeschlagen (rot bei `Color: true`), mit Fehlermeldung
+- `[OK]` = Check passed (green when `Color: true`)
+- `[FAIL]` = Check failed (red when `Color: true`), with error message
 
 ---
 
-## Öffentliche API-Stabilität
+## Public API Stability
 
-Die folgenden Elemente gelten als **öffentliche API** und unterliegen den Versionierungsgarantien:
+The following elements are considered **public API** and are subject to versioning guarantees:
 
-- Alle exportierten Typen, Funktionen, Variablen und Konstanten in den Paketen `banner`, `checks` und `version`.
-- Das `Check`-Interface und sein Vertrag.
-- Die Felder der Structs `Options`, `BuildInfo`, `Result`, `Runner`, `GroupOptions`.
-- Die Felder der Built-in-Check-Structs (`SQLPingCheck`, `TCPDialCheck`, `HTTPGetCheck`, `RedisPingCheck`).
+- All exported types, functions, variables, and constants in the `banner`, `checks`, and `version` packages.
+- The `Check` interface and its contract.
+- The fields of the `Options`, `BuildInfo`, `Result`, `Runner`, and `GroupOptions` structs.
+- The fields of the built-in check structs (`SQLPingCheck`, `TCPDialCheck`, `HTTPGetCheck`, `RedisPingCheck`).
 
-**Nicht Teil der öffentlichen API** (können sich ohne Vorankündigung ändern):
+**Not part of the public API** (may change without notice):
 
-- Alle unexportierten (kleingeschriebenen) Bezeichner.
-- Das `example/`-Verzeichnis.
-- Das `scripts/`-Verzeichnis.
-- Interne Font-Daten und Render-Hilfsfunktionen.
-
----
-
-## Versionierungsstrategie
-
-Dieses Projekt folgt [Semantic Versioning 2.0.0](https://semver.org/):
-
-| Version-Teil | Wann? | Beispiel |
-|-------------|-------|---------|
-| **MAJOR** (`X.0.0`) | Inkompatible API-Änderungen (Entfernen/Umbenennen exportierter Symbole, Änderung von Funktionssignaturen, Breaking Changes am `Check`-Interface) | `1.0.0` → `2.0.0` |
-| **MINOR** (`0.X.0`) | Neue Features, abwärtskompatibel (neue Check-Typen, neue `Options`-Felder, neue Hilfsfunktionen) | `0.1.0` → `0.2.0` |
-| **PATCH** (`0.0.X`) | Abwärtskompatible Bug-Fixes und Dokumentationskorrekturen | `0.1.0` → `0.1.1` |
-
-**Hinweis:** Solange das Modul bei `0.x.y` ist, kann sich die API zwischen Minor-Versionen ändern. Ein `1.0.0`-Release signalisiert eine stabile API-Verpflichtung.
+- All unexported (lowercase) identifiers.
+- The `example/` directory.
+- The `scripts/` directory.
+- Internal font data and render helper functions.
 
 ---
 
-## Release-Prozess
+## Versioning Strategy
 
-1. **Version aktualisieren:** Setze `ModuleVersion` in `version/version.go` auf die neue Version.
-2. **CHANGELOG aktualisieren:** Verschiebe Einträge von `[Unreleased]` in eine neue Versions-Sektion mit Datum.
-3. **Committen:**
+This project follows [Semantic Versioning 2.0.0](https://semver.org/):
+
+| Version Part | When? | Example |
+|--------------|-------|---------|
+| **MAJOR** (`X.0.0`) | Incompatible API changes (removing/renaming exported symbols, changing function signatures, breaking changes to the `Check` interface) | `1.0.0` → `2.0.0` |
+| **MINOR** (`0.X.0`) | New features, backward-compatible (new check types, new `Options` fields, new helper functions) | `0.1.0` → `0.2.0` |
+| **PATCH** (`0.0.X`) | Backward-compatible bug fixes and documentation corrections | `0.1.0` → `0.1.1` |
+
+**Note:** As long as the module is at `0.x.y`, the API may change between minor versions. A `1.0.0` release signals a stable API commitment.
+
+---
+
+## Release Process
+
+1. **Update version:** Set `ModuleVersion` in `version/version.go` to the new version.
+2. **Update CHANGELOG:** Move entries from `[Unreleased]` into a new version section with date.
+3. **Commit:**
    ```bash
    git add -A
    git commit -m "release: v0.2.0"
    ```
-4. **Taggen und pushen:**
+4. **Tag and push:**
    ```bash
    git tag v0.2.0
    git push origin master v0.2.0
    ```
-5. **Konsumenten können die Version pinnen:**
+5. **Consumers can pin the version:**
    ```bash
    go get github.com/keksclan/goStartyUpy@v0.2.0
    ```
 
 ---
 
-## Beispielprogramme
+## Example Programs
 
-Das `example/`-Verzeichnis enthält lauffähige Programme für verschiedene Anwendungsfälle:
+The `example/` directory contains runnable programs for various use cases:
 
-| Beispiel | Beschreibung | Starten mit |
-|----------|-------------|------------|
-| `example/` | Vollständige Demo: Custom Checks, Groups, Built-in Checks | `make run-example` |
-| `example/simple/` | Minimaler Banner ohne Checks | `go run ./example/simple/` |
-| `example/custom_banner/` | Eigenes ASCII-Art als Banner | `go run ./example/custom_banner/` |
-| `example/ascii_only/` | ASCII-Only-Modus für Terminals ohne Unicode | `go run ./example/ascii_only/` |
-| `example/checks_demo/` | Alle Built-in-Check-Typen (SQL, TCP, HTTP, Redis) | `go run ./example/checks_demo/` |
-| `example/custom_checks/` | Funktions-basierte, Boolean- und gruppierte Checks | `go run ./example/custom_checks/` |
-| `example/font_preview/` | Druckt den Big-Font ASCII-Wordmark für einen Service-Namen | `go run ./example/font_preview/` |
+| Example | Description | Run with |
+|---------|-------------|----------|
+| `example/` | Full demo: Custom checks, groups, built-in checks | `make run-example` |
+| `example/simple/` | Minimal banner without checks | `go run ./example/simple/` |
+| `example/custom_banner/` | Custom ASCII art as banner | `go run ./example/custom_banner/` |
+| `example/ascii_only/` | ASCII-only mode for terminals without Unicode | `go run ./example/ascii_only/` |
+| `example/checks_demo/` | All built-in check types (SQL, TCP, HTTP, Redis) | `go run ./example/checks_demo/` |
+| `example/custom_checks/` | Function-based, boolean, and grouped checks | `go run ./example/custom_checks/` |
+| `example/font_preview/` | Prints the big-font ASCII wordmark for a service name | `go run ./example/font_preview/` |
 
 ```bash
-# Einfachster Start:
+# Simplest start:
 go run ./example/simple/
 
-# Vollständige Demo mit Build-Metadaten:
+# Full demo with build metadata:
 make run-example
 ```
 
 ---
 
-## Ausgabe-Beispiel (Box-Style mit Checks)
+## Output Example (Box Style with Checks)
 
-Das folgende Beispiel zeigt die vollständige Ausgabe im Box-Style mit Build-Metadaten, Extra-Feldern und Check-Ergebnissen:
+The following example shows the complete output in box style with build metadata, extra fields, and check results:
 
 ```
 ┌──────────────────────────────┐
@@ -886,75 +886,75 @@ Checks:
 Startup Complete
 ```
 
-**Aufbau der Ausgabe:**
+**Output Structure:**
 
-1. **Banner** — ASCII-Art oder Box (je nach Style)
-2. **Separator** — Trennlinie (`═══...` oder `===...` im ASCII-Modus)
-3. **Info-Sektion** — Key/Value-Paare (Service, Environment, Version, BuildTime, Commit, Branch, Dirty, Go, OS/Arch, PID, plus alle `Extra`-Einträge)
-4. **Checks** (nur bei `RenderWithChecks`) — Ergebnisse mit `[OK]`/`[FAIL]` Status und Dauer
-5. **Footer** — `"Startup Complete"` oder Check-Zusammenfassung
+1. **Banner** — ASCII art or box (depending on style)
+2. **Separator** — Separator line (`═══...` or `===...` in ASCII mode)
+3. **Info Section** — Key/value pairs (Service, Environment, Version, BuildTime, Commit, Branch, Dirty, Go, OS/Arch, PID, plus all `Extra` entries)
+4. **Checks** (only with `RenderWithChecks`) — Results with `[OK]`/`[FAIL]` status and duration
+5. **Footer** — `"Startup Complete"` or check summary
 
 ---
 
-## Sicherheitshinweis
+## Security Notice
 
-Der Banner druckt ausschließlich **sichere, nicht-geheime** Informationen (Version, Adressen, PID etc.).
+The banner prints exclusively **safe, non-secret** information (version, addresses, PID, etc.).
 
-⚠️ **Gib niemals Secrets** (Passwörter, Tokens, API-Keys) über `Options.Extra` oder andere Felder weiter. Der Aufrufer ist dafür verantwortlich, was gedruckt wird.
+⚠️ **Never pass secrets** (passwords, tokens, API keys) via `Options.Extra` or other fields. The caller is responsible for what is printed.
 
 ---
 
 ## Tests
 
 ```bash
-# Alle Unit-Tests ausführen:
+# Run all unit tests:
 go test ./...
 
-# Via Makefile (identisch):
+# Via Makefile (identical):
 make test
 
 # Linting (go vet + gofmt):
 make lint
 ```
 
-Das Projekt enthält Tests für:
-- Banner-Rendering aller 6 Styles
-- Font-Rendering und Fallback-Glyphen
-- Build-Metadaten-Snapshot
-- Formatierung und Separator
-- Environment-Erkennung (explizit, aus Env-Var, nicht gesetzt)
-- Check-Runner (parallel und sequenziell)
-- Alle Built-in-Check-Typen
-- FuncCheck, Bool-Check, Group-Check
-- Panic-Recovery
-- Unicode- und Edge-Case-Sicherheit
+The project includes tests for:
+- Banner rendering of all 6 styles
+- Font rendering and fallback glyphs
+- Build metadata snapshot
+- Formatting and separator
+- Environment detection (explicit, from env var, not set)
+- Check runner (parallel and sequential)
+- All built-in check types
+- FuncCheck, Bool check, Group check
+- Panic recovery
+- Unicode and edge-case safety
 
 ---
 
-## Lizenz
+## License
 
-Dieses Projekt steht unter der **MIT License with Attribution Requirement** — siehe [LICENSE](LICENSE) für den vollständigen Text.
+This project is licensed under the **MIT License with Attribution Requirement** — see [LICENSE](LICENSE) for the full text.
 
-**Kurzfassung:**
-- Open-Source-Nutzung: Frei, Attribution optional aber geschätzt.
-- Kommerzielle/Corporate-Nutzung: MIT-kompatibel, Attribution-Erwähnung erforderlich.
+**Summary:**
+- Open-source usage: Free, attribution optional but appreciated.
+- Commercial/corporate usage: MIT-compatible, attribution mention required.
 
 ---
 
 ## Used by
 
-Dieses Projekt wird verwendet von:
-- [Keksclan](https://github.com/Keksclan) — Creator von goStartyUpy
+This project is used by:
+- [Keksclan](https://github.com/Keksclan) — Creator of goStartyUpy
 
-➕ **Dein Projekt/Unternehmen hier hinzufügen?** Öffne einen Pull Request und editiere [`USED_BY.md`](USED_BY.md). Regeln:
-- Alphabetisch einordnen
-- 1 Zeile pro Eintrag, kein Marketing
-- Format: `- [Name](URL) - Kurze Beschreibung [tags]`
+➕ **Add your project/organization here?** Open a pull request and edit [`USED_BY.md`](USED_BY.md). Rules:
+- Sort alphabetically
+- 1 line per entry, no marketing
+- Format: `- [Name](URL) - Short description [tags]`
 
 ---
 
 ## Tags / Topics
 
-Die folgenden Tags beschreiben dieses Projekt und können als GitHub-Topics verwendet werden:
+The following tags describe this project and can be used as GitHub topics:
 
 `golang` · `go-library` · `banner` · `startup-banner` · `cli` · `microservices` · `health-check` · `startup-checks` · `zero-dependencies` · `devops` · `ascii-art` · `build-metadata` · `spring-boot-style` · `production-ready` · `deterministic`
