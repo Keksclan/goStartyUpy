@@ -14,6 +14,9 @@ import (
 // defaultSeparator is a Unicode box-drawing line used between banner and info.
 const defaultSeparator = "════════════════════════════════════════════════════════════"
 
+// EnvVarEnvironment is the environment variable name for environment detection.
+const EnvVarEnvironment = "GO_STARTYUPY_ENV"
+
 // Render produces a startup message string containing the ASCII banner,
 // a separator, and aligned key-value metadata. The output always ends with
 // a newline.
@@ -26,6 +29,14 @@ func Render(opts Options, info BuildInfo) string {
 func RenderWithChecks(opts Options, info BuildInfo, results []checks.Result) string {
 	var b strings.Builder
 	c := opts.Color
+
+	// --- environment detection ---
+	if opts.Environment == "" {
+		if env := os.Getenv(EnvVarEnvironment); env != "" {
+			opts.Environment = env
+			opts.EnvironmentFromEnv = true
+		}
+	}
 
 	// --- banner art ---
 	art := resolveBanner(opts)

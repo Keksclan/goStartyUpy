@@ -44,6 +44,10 @@ func renderWordmark(text string) string {
 // The asciiOnly parameter is accepted for API consistency but does not
 // currently alter the output (the wordmark uses plain ASCII by default).
 func SpringLikeBanner(serviceName string, asciiOnly bool) string {
+	return springLikeBannerInternal(serviceName, "", false, asciiOnly)
+}
+
+func springLikeBannerInternal(serviceName string, env string, fromEnv bool, _ bool) string {
 	if serviceName == "" {
 		serviceName = "SERVICE"
 	}
@@ -52,14 +56,12 @@ func SpringLikeBanner(serviceName string, asciiOnly bool) string {
 		name = "SERVICE"
 	}
 
-	ver := Version
-	if ver == "" {
-		ver = "dev"
-	}
-
 	var b strings.Builder
 	b.WriteString(renderWordmark(name))
 	b.WriteByte('\n')
-	b.WriteString(" :: goStartyUpy :: (" + ver + ")")
+	b.WriteString(" :: goStartyUpy ::")
+	if fromEnv && env != "" {
+		b.WriteString(" (" + env + ")")
+	}
 	return b.String()
 }

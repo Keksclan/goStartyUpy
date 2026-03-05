@@ -21,11 +21,11 @@ func TestSpringLikeBanner_ContainsTagline(t *testing.T) {
 	}
 }
 
-func TestSpringLikeBanner_ContainsVersion(t *testing.T) {
+func TestSpringLikeBanner_NoDefaultSuffix(t *testing.T) {
 	out := SpringLikeBanner("x", false)
-	// Version package-level var defaults to "dev".
-	if !strings.Contains(out, "(dev)") && !strings.Contains(out, "(v") {
-		t.Errorf("expected version in tagline, got:\n%s", out)
+	// Version/env suffix is no longer shown by default.
+	if strings.Contains(out, "(") || strings.Contains(out, ")") {
+		t.Errorf("did not expect suffix in default tagline, got:\n%s", out)
 	}
 }
 

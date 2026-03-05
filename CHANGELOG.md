@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `BannerStyle: "mini"` — compact 3-row ASCII wordmark.
+- `BannerStyle: "block"` — thick 5-row ASCII wordmark using `#`.
+- `MiniBanner` and `BlockBanner` public functions for direct generation.
+- `GO_STARTYUPY_ENV` environment variable support for automatic environment detection.
+- `Options.EnvironmentFromEnv` internal flag to track environment source.
+- `USED_BY.md` registry for users and organizations.
+- README tags/topics section.
 - Built-in big ASCII font for spring-like banners using an "underscore / pipe /
   slash" style (`banner/font_big.go`). Supports A–Z, 0–9, `-`, `_`, space, and
   a `?` fallback glyph. No external dependencies.
@@ -39,9 +46,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `SpringLikeBanner` and default `"spring"` style no longer display a version/env suffix by default.
+- Banner header suffix (e.g., `(staging)`) is now only shown if the environment was sourced from the `GO_STARTYUPY_ENV` environment variable.
+- Documentation aligned to use `master` as the default branch.
+- LICENSE updated to "MIT License with Attribution Requirement" (matching goConfy).
 - `DefaultBanner` now returns a Spring Boot–style wordmark banner instead of
   the box banner. Use `BoxBanner` or `BannerStyle: "box"` for the old style.
 - Default banner style changed from box to `"spring"`.
+- README massively expanded with comprehensive German documentation covering
+  all Options fields, BuildInfo struct, Render functions, Check system details,
+  environment auto-detection behavior, API stability guarantees, and complete
+  code examples for every feature.
+- Minimum Go version in `go.mod` adjusted from 1.26 to 1.24 (actual minimum
+  required by the codebase).
 
 ### Fixed
 
