@@ -19,14 +19,34 @@ func TestIsLarsBirthdayAt_OtherDay(t *testing.T) {
 	}
 }
 
-func TestLarsMessageInBanner(t *testing.T) {
-	// Today is March 6, so isLarsBirthday() should be true and the message should appear.
-	out := Render(Options{ServiceName: "test"}, BuildInfo{})
-	if !isLarsBirthday() {
-		t.Skip("not March 6 – skipping live banner check")
+func TestLarsChanceConstant(t *testing.T) {
+	if larsChance != 100 {
+		t.Errorf("expected larsChance=100, got %d", larsChance)
 	}
-	if got := out; !contains(got, "Lars hat Geburtstag") {
-		t.Errorf("expected Lars birthday message in banner, got:\n%s", got)
+}
+
+func TestIsLarsBirthday_Probabilistic(t *testing.T) {
+	// On March 6 the function should return true roughly 1% of the time.
+	// We call it many times and verify it fires at least once and not always.
+	if !isLarsBirthdayAt(time.Now()) {
+		t.Skip("not March 6 – skipping probabilistic check")
+	}
+	hits := 0
+	const runs = 10_000
+	for range runs {
+		if isLarsBirthday() {
+			hits++
+		}
+	}
+	if hits == 0 {
+		t.Error("expected at least one hit in 10 000 runs (p≈1%)")
+	}
+	if hits == runs {
+		t.Error("got hit every single time – randomness broken")
+	}
+	// Loose sanity: expect between 10 and 500 hits (1% of 10k = 100).
+	if hits < 10 || hits > 500 {
+		t.Errorf("hits=%d out of %d – outside plausible range", hits, runs)
 	}
 }
 

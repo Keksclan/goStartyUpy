@@ -7,8 +7,9 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/keksclan/goStartyUpy/checks"
 	"maps"
+
+	"github.com/keksclan/goStartyUpy/checks"
 )
 
 // defaultSeparator is a Unicode box-drawing line used between banner and info.
