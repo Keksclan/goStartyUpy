@@ -66,7 +66,7 @@ import (
     "github.com/keksclan/goStartyUpy/banner"       // Banner rendering, Options, BuildInfo
     "github.com/keksclan/goStartyUpy/checks"       // Health checks, Runner, Check interface
     "github.com/keksclan/goStartyUpy/configcheck"  // Configuration validation for goConfy structs
-    "github.com/keksclan/goStartyUpy/version"      // Module version (e.g., "0.1.0")
+    "github.com/keksclan/goStartyUpy/version"      // Module version (e.g., "0.2.0")
 )
 ```
 
@@ -872,7 +872,7 @@ goStartyUpy strictly distinguishes between **two different version values** that
 
 | Value | Package | Purpose | Set by |
 |-------|---------|---------|--------|
-| `version.ModuleVersion` | `version` | Release version of the **library** itself (e.g., `"0.1.0"`) | In the source code (`version/version.go`) |
+| `version.ModuleVersion` | `version` | Release version of the **library** itself (e.g., `"0.2.0"`) | In the source code (`version/version.go`) |
 | `banner.Version` | `banner` | Build version of the **service binary** (e.g., `"v1.2.3"`) | `-ldflags` at compile time |
 
 **Why two versions?**
@@ -880,12 +880,12 @@ goStartyUpy strictly distinguishes between **two different version values** that
 - `ModuleVersion` tells you which version of goStartyUpy you are using as a dependency.
 - `banner.Version` tells you which version of your own service is currently running.
 
-Both are independent values. Your service can use `goStartyUpy@v0.1.0` and still be tagged as `v3.7.2`.
+Both are independent values. Your service can use `goStartyUpy@v0.2.0` and still be tagged as `v3.7.2`.
 
 ```go
 import "github.com/keksclan/goStartyUpy/version"
 
-fmt.Println("goStartyUpy Library:", version.ModuleVersion) // "0.1.0"
+fmt.Println("goStartyUpy Library:", version.ModuleVersion) // "0.2.0"
 ```
 
 ---
