@@ -183,6 +183,35 @@ func validateStruct(v reflect.Value, prefix string, ve *ValidationError) {
 		if actual.Kind() == reflect.Slice || actual.Kind() == reflect.Map {
 			if actual.IsNil() || actual.Len() == 0 {
 				ve.Missing = append(ve.Missing, fullKey)
+			} else if actual.Kind() == reflect.Slice {
+				for j := range actual.Len() {
+					elem := actual.Index(j)
+					if elem.Kind() == reflect.Ptr {
+						if elem.IsNil() {
+							continue
+						}
+						elem = elem.Elem()
+					}
+					if elem.Kind() == reflect.Struct && !isLeafStruct(elem) {
+						elemKey := fmt.Sprintf("%s[%d]", fullKey, j)
+						validateStruct(elem, elemKey, ve)
+					}
+				}
+			} else {
+				iter := actual.MapRange()
+				for iter.Next() {
+					val := iter.Value()
+					if val.Kind() == reflect.Ptr {
+						if val.IsNil() {
+							continue
+						}
+						val = val.Elem()
+					}
+					if val.Kind() == reflect.Struct && !isLeafStruct(val) {
+						mapKey := fmt.Sprintf("%s.%v", fullKey, iter.Key())
+						validateStruct(val, mapKey, ve)
+					}
+				}
 			}
 			continue
 		}

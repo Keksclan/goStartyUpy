@@ -81,6 +81,18 @@ type noTagConfig struct {
 	FieldTwo int
 }
 
+type configWithStructSlice struct {
+	Items []dbConfig `yaml:"items"`
+}
+
+type configWithStructMap struct {
+	Services map[string]dbConfig `yaml:"services"`
+}
+
+type configWithPtrSlice struct {
+	Items []*dbConfig `yaml:"items"`
+}
+
 // --- Validate tests --------------------------------------------------------
 
 func TestValidate_AllFieldsPresent(t *testing.T) {
@@ -499,6 +511,72 @@ func TestValidationError_ErrorIsDeterministic(t *testing.T) {
 		}
 		if !strings.Contains(s, "some.key") {
 			t.Fatal("error string must always contain the missing key")
+		}
+	}
+}
+
+func TestValidate_SliceOfStructs_ValidatesElements(t *testing.T) {
+	cfg := configWithStructSlice{
+		Items: []dbConfig{
+			{Host: "h", Port: 1, Password: "p"},
+			{Host: "h2"}, // port and password missing
+		},
+	}
+	ve := Validate(cfg)
+	if ve == nil {
+		t.Fatal("expected validation error for incomplete slice element")
+	}
+	for _, key := range []string{"items[1].port", "items[1].password"} {
+		if !slices.Contains(ve.Missing, key) {
+			t.Errorf("expected missing key %q, got: %v", key, ve.Missing)
+		}
+	}
+}
+
+func TestValidate_SliceOfStructs_AllValid(t *testing.T) {
+	cfg := configWithStructSlice{
+		Items: []dbConfig{
+			{Host: "h", Port: 1, Password: "p"},
+		},
+	}
+	if ve := Validate(cfg); ve != nil {
+		t.Fatalf("expected no error, got: %v", ve)
+	}
+}
+
+func TestValidate_MapOfStructs_ValidatesValues(t *testing.T) {
+	cfg := configWithStructMap{
+		Services: map[string]dbConfig{
+			"primary":  {Host: "h", Port: 1, Password: "p"},
+			"fallback": {Host: "h2"}, // port and password missing
+		},
+	}
+	ve := Validate(cfg)
+	if ve == nil {
+		t.Fatal("expected validation error for incomplete map value")
+	}
+	for _, key := range []string{"services.fallback.port", "services.fallback.password"} {
+		if !slices.Contains(ve.Missing, key) {
+			t.Errorf("expected missing key %q, got: %v", key, ve.Missing)
+		}
+	}
+}
+
+func TestValidate_PtrSlice_ValidatesElements(t *testing.T) {
+	cfg := configWithPtrSlice{
+		Items: []*dbConfig{
+			{Host: "h", Port: 1, Password: "p"},
+			{Host: "h2"}, // port and password missing
+			nil,          // nil pointer, should be skipped
+		},
+	}
+	ve := Validate(cfg)
+	if ve == nil {
+		t.Fatal("expected validation error for incomplete ptr slice element")
+	}
+	for _, key := range []string{"items[1].port", "items[1].password"} {
+		if !slices.Contains(ve.Missing, key) {
+			t.Errorf("expected missing key %q, got: %v", key, ve.Missing)
 		}
 	}
 }
