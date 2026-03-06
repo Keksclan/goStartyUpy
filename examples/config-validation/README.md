@@ -38,10 +38,11 @@ not need.
 
 ## Running the example
 
-From the repository root:
+This example is a separate Go module. Run it from the example directory:
 
 ```bash
-go run ./examples/config-validation/
+cd examples/config-validation
+go run .
 ```
 
 The application loads `config.full.example.yml`, validates it, and prints
@@ -50,7 +51,8 @@ the startup banner followed by the loaded values.
 ## Running the tests
 
 ```bash
-go test ./examples/config-validation/ -v
+cd examples/config-validation
+go test -v ./...
 ```
 
 The test suite validates:

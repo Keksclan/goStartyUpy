@@ -6,9 +6,10 @@
 // goStartyUpy config validation to check for missing required fields.
 // When the configuration is valid, the startup banner is printed.
 //
-// Run from the repository root:
+// Run from the example directory:
 //
-//	go run ./examples/config-validation/
+//	cd examples/config-validation
+//	go run .
 package main
 
 import (
@@ -64,7 +65,7 @@ type AppConfig struct {
 func main() {
 	// Load configuration from YAML using goConfy.
 	cfg, err := goconfy.Load[AppConfig](
-		goconfy.WithFile("examples/config-validation/config.full.example.yml"),
+		goconfy.WithFile("config.full.example.yml"),
 	)
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
