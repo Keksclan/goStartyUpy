@@ -56,6 +56,9 @@ var blockFont = map[rune]glyph5{
 // renderBlockText renders the input string as multi-line ASCII art using blockFont.
 func renderBlockText(input string) []string {
 	normalized := normalizeBigInput(input)
+	if normalized == "" {
+		normalized = "SERVICE"
+	}
 
 	rows := make([]strings.Builder, blockHeight)
 	for i, r := range normalized {
