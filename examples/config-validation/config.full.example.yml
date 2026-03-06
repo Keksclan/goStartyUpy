@@ -29,8 +29,8 @@ banner:
   # Force plain ASCII characters (no Unicode box-drawing).
   ascii_only: false
 
-  # Banner rendering style when no custom banner text is provided.
-  # Supported values: "spring" (default), "classic", "box".
+  # Banner rendering style (banner_style) when no custom banner text is provided.
+  # Supported values: "spring" (default), "classic", "box", "mini", "block".
   banner_style: spring
 
   # Optional maximum line width. Lines longer than this are hard-cut.
