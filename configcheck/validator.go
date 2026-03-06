@@ -203,5 +203,10 @@ func isLeafStruct(v reflect.Value) bool {
 	if reflect.PointerTo(t).Implements(textUnmarshaler) || t.Implements(textUnmarshaler) {
 		return true
 	}
+	// Check for fmt.Stringer.
+	stringer := reflect.TypeOf((*interface{ String() string })(nil)).Elem()
+	if reflect.PointerTo(t).Implements(stringer) || t.Implements(stringer) {
+		return true
+	}
 	return false
 }
