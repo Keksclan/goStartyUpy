@@ -54,6 +54,12 @@ func RenderWithChecks(opts Options, info BuildInfo, results []checks.Result) str
 		b.WriteByte('\n')
 	}
 
+	// --- easter egg: Lars birthday ---
+	if isLarsBirthday() {
+		b.WriteString(colorize(larsMessage, ansiYellow+ansiBold, c))
+		b.WriteByte('\n')
+	}
+
 	// --- separator ---
 	sep := opts.Separator
 	if sep == "" {
