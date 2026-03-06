@@ -47,6 +47,9 @@ func SpringLikeBanner(serviceName string, asciiOnly bool) string {
 	return springLikeBannerInternal(serviceName, "", false, asciiOnly)
 }
 
+// springLikeBannerInternal is the internal implementation of the spring-like
+// banner. It accepts environment parameters (env, fromEnv) to optionally
+// append an environment suffix to the rendered tagline.
 func springLikeBannerInternal(serviceName string, env string, fromEnv bool, _ bool) string {
 	if serviceName == "" {
 		serviceName = "SERVICE"
