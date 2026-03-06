@@ -63,14 +63,16 @@ The module has **no transitive dependencies**. After `go get`, your `go.sum` wil
 
 ```go
 import (
-    "github.com/keksclan/goStartyUpy/banner"   // Banner rendering, Options, BuildInfo
-    "github.com/keksclan/goStartyUpy/checks"    // Health checks, Runner, Check interface
-    "github.com/keksclan/goStartyUpy/version"   // Module version (e.g., "0.1.0")
+    "github.com/keksclan/goStartyUpy/banner"       // Banner rendering, Options, BuildInfo
+    "github.com/keksclan/goStartyUpy/checks"       // Health checks, Runner, Check interface
+    "github.com/keksclan/goStartyUpy/configcheck"  // Configuration validation for goConfy structs
+    "github.com/keksclan/goStartyUpy/version"      // Module version (e.g., "0.1.0")
 )
 ```
 
 - **`banner`** — Main package. Contains `Options`, `BuildInfo`, `Render()`, `RenderWithChecks()`, all banner functions, and the build metadata variables.
 - **`checks`** — Health check system. Contains the `Check` interface, `Runner`, all built-in checks, and helper constructors.
+- **`configcheck`** — Configuration validation. Validates that all required fields in a goConfy config struct are populated.
 - **`version`** — Exposes the module version as the `ModuleVersion` constant.
 
 ---
@@ -711,6 +713,133 @@ In **both modes**, the results are returned in the **same order** as the input.
 
 ---
 
+## Configuration Validation
+
+The `configcheck` package provides **startup-time configuration validation** for structs loaded by [goConfy](https://github.com/Keksclan/goConfy). It inspects the config struct via reflection and reports any required fields that are missing or empty — catching configuration mistakes before the service starts serving traffic.
+
+### Why Validation?
+
+Missing or empty configuration values often cause cryptic runtime errors (nil pointer dereferences, empty connection strings, silent fallbacks). Running a validation step at startup ensures that **all required values are present** before any component is initialized.
+
+### Enabling Validation
+
+Validation is **optional and off by default**. Enable it by passing `configcheck.Options{Enabled: true}` before printing the startup banner:
+
+```go
+package main
+
+import (
+    "fmt"
+    "log"
+
+    goconfy "github.com/keksclan/goConfy"
+    "github.com/keksclan/goStartyUpy/banner"
+    "github.com/keksclan/goStartyUpy/configcheck"
+)
+
+type AppConfig struct {
+    Database struct {
+        Host     string `yaml:"host"`
+        Port     int    `yaml:"port"`
+        Password string `yaml:"password"`
+    } `yaml:"database"`
+    Redis struct {
+        Address string `yaml:"address"`
+    } `yaml:"redis"`
+    LogLevel string `yaml:"log_level" required:"false"`
+}
+
+func main() {
+    // 1. Load config via goConfy
+    cfg, err := goconfy.Load[AppConfig](goconfy.WithFile("config.yml"))
+    if err != nil {
+        log.Fatalf("failed to load config: %v", err)
+    }
+
+    // 2. Run config validation
+    if err := configcheck.RunStartupCheck(configcheck.Options{
+        Enabled: true,
+        Config:  cfg,
+    }); err != nil {
+        fmt.Print(err)
+        log.Fatal("Aborting startup due to configuration errors.")
+    }
+
+    // 3. Print startup banner
+    fmt.Print(banner.Render(banner.Options{ServiceName: "my-service"}, banner.CurrentBuildInfo()))
+
+    // 4. Continue service initialization...
+}
+```
+
+### Startup Order
+
+The recommended startup sequence when using config validation:
+
+1. Load config via goConfy (`goconfy.Load[T]`)
+2. Run config validation (`configcheck.RunStartupCheck`)
+3. Print startup banner (`banner.Render` / `banner.RenderWithChecks`)
+4. Continue service initialization
+
+### Required vs. Optional Fields
+
+By default, **all exported struct fields are required**. Mark a field as optional with the `required:"false"` struct tag:
+
+```go
+type Config struct {
+    Host     string `yaml:"host"`                       // required (default)
+    Port     int    `yaml:"port"`                       // required
+    LogLevel string `yaml:"log_level" required:"false"` // optional
+}
+```
+
+The validator uses the `yaml` struct tag to determine the YAML key name. If no `yaml` tag is present, the Go field name is used. Fields tagged `yaml:"-"` are skipped entirely.
+
+### What Gets Checked
+
+| Check | Description |
+|-------|-------------|
+| **Zero-value scalars** | Empty strings, zero ints/floats, false bools (when required) |
+| **Nil pointers** | Pointer fields that are nil |
+| **Empty slices/maps** | Nil or zero-length slices and maps |
+| **Nested structs** | Recursively validated with dot-separated paths |
+| **Leaf structs** | Types implementing `encoding.TextUnmarshaler` (e.g., `time.Time`) are checked as single values |
+
+### Example Error Output
+
+When validation fails, the output is a clear diagnostic block:
+
+```
+Config validation failed:
+
+Missing configuration keys:
+  - database.port
+  - database.password
+  - redis.address
+```
+
+This helps developers quickly identify and fix configuration problems.
+
+### Convenience: `MustPassStartupCheck`
+
+For a one-liner that logs and exits on failure:
+
+```go
+configcheck.MustPassStartupCheck(configcheck.Options{
+    Enabled: true,
+    Config:  cfg,
+}, log.Fatalf)
+```
+
+### Best Practices
+
+- **Enable validation in all environments** — it adds negligible overhead and catches drift between config files.
+- **Use `required:"false"`** sparingly — only for truly optional fields with sensible zero-value behavior.
+- **Run validation before the banner** — so failures are visible immediately, not buried after startup output.
+- **Use goConfy's strict mode** (default) together with configcheck — goConfy rejects unknown YAML keys, configcheck catches missing ones.
+
+---
+
 ## Module Version vs. Build Version
 
 goStartyUpy strictly distinguishes between **two different version values** that are independent of each other:
@@ -863,6 +992,7 @@ The `example/` directory contains runnable programs for various use cases:
 | `example/checks_demo/` | All built-in check types (SQL, TCP, HTTP, Redis) | `go run ./example/checks_demo/` |
 | `example/custom_checks/` | Function-based, boolean, and grouped checks | `go run ./example/custom_checks/` |
 | `example/font_preview/` | Prints the big-font ASCII wordmark for a service name | `go run ./example/font_preview/` |
+| `example/config_validation/` | Configuration validation with configcheck | `go run ./example/config_validation/` |
 
 ```bash
 # Simplest start:
