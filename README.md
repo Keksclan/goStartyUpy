@@ -892,11 +892,15 @@ fmt.Println("goStartyUpy Library:", version.ModuleVersion) // "0.2.0"
 
 ## `BuildInfo` Struct
 
-`CurrentBuildInfo()` creates a `BuildInfo` struct with all build and runtime metadata. This struct is passed to `Render()` and `RenderWithChecks()`:
+`CurrentBuildInfo()` creates a `BuildInfo` struct from the package-level link-time variables. This struct is passed to `Render()` and `RenderWithChecks()`:
 
 ```go
 info := banner.CurrentBuildInfo()
 ```
+
+### Struct Fields
+
+These are the actual fields of the `BuildInfo` struct, set via `-ldflags` at build time:
 
 | Field | Type | Source | Description |
 |-------|------|--------|-------------|
@@ -905,6 +909,13 @@ info := banner.CurrentBuildInfo()
 | `Commit` | `string` | `-ldflags` | Short Git commit hash (default: `"unknown"`) |
 | `Branch` | `string` | `-ldflags` | Git branch (default: `"unknown"`) |
 | `Dirty` | `string` | `-ldflags` | `"true"` / `"false"` for uncommitted changes |
+
+### Rendered Values
+
+The following values are **not** fields on `BuildInfo`. They are collected internally by the renderer at render time from the `runtime` package and `os.Getpid()`, and appear in the banner output alongside the struct fields:
+
+| Value | Type | Source | Description |
+|-------|------|--------|-------------|
 | `GoVersion` | `string` | `runtime.Version()` | Go version (e.g., `"go1.26"`) |
 | `OS` | `string` | `runtime.GOOS` | Operating system (e.g., `"linux"`, `"darwin"`) |
 | `Arch` | `string` | `runtime.GOARCH` | CPU architecture (e.g., `"amd64"`, `"arm64"`) |
