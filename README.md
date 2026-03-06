@@ -757,12 +757,13 @@ func main() {
     }
 
     // 2. Run config validation
-    if err := configcheck.RunStartupCheck(configcheck.Options{
+    msg, err := configcheck.RunStartupCheck(configcheck.Options{
         Enabled: true,
         Config:  cfg,
-    }); err != nil {
-        fmt.Print(err)
-        log.Fatal("Aborting startup due to configuration errors.")
+    })
+    if err != nil {
+        fmt.Println(msg)
+        log.Fatalf("Aborting startup due to configuration errors: %v", err)
     }
 
     // 3. Print startup banner
