@@ -57,6 +57,25 @@ type configYAMLDash struct {
 	Name     string `yaml:"name"`
 }
 
+type optionalParentConfig struct {
+	Database dbConfig `yaml:"database" required:"false"`
+	AppName  string   `yaml:"app_name"`
+}
+
+type optionalPointerParentConfig struct {
+	DB *dbConfig `yaml:"db" required:"false"`
+}
+
+type optionalSliceConfig struct {
+	Tags []string `yaml:"tags" required:"false"`
+	Name string   `yaml:"name"`
+}
+
+type optionalMapConfig struct {
+	Extra map[string]string `yaml:"extra" required:"false"`
+	Name  string            `yaml:"name"`
+}
+
 type noTagConfig struct {
 	FieldOne string
 	FieldTwo int
@@ -109,6 +128,70 @@ func TestValidate_OptionalFieldsNotReported(t *testing.T) {
 	}
 	if ve := Validate(cfg); ve != nil {
 		t.Fatalf("expected no error, got: %v", ve)
+	}
+}
+
+func TestValidate_OptionalParentZero_NotReported(t *testing.T) {
+	// When the optional parent struct is zero-valued, nothing should be reported.
+	cfg := optionalParentConfig{
+		AppName: "my-app",
+	}
+	if ve := Validate(cfg); ve != nil {
+		t.Fatalf("expected no error for zero optional parent, got: %v", ve)
+	}
+}
+
+func TestValidate_OptionalParentPopulated_ValidatesDescendants(t *testing.T) {
+	// When the optional parent struct is populated but incomplete,
+	// its required descendants must still be validated.
+	cfg := optionalParentConfig{
+		Database: dbConfig{Host: "localhost"}, // port and password missing
+		AppName:  "my-app",
+	}
+	ve := Validate(cfg)
+	if ve == nil {
+		t.Fatal("expected validation error for incomplete optional parent")
+	}
+	for _, key := range []string{"database.port", "database.password"} {
+		if !slices.Contains(ve.Missing, key) {
+			t.Errorf("expected missing key %q, got: %v", key, ve.Missing)
+		}
+	}
+}
+
+func TestValidate_OptionalPointerNil_NotReported(t *testing.T) {
+	cfg := optionalPointerParentConfig{DB: nil}
+	if ve := Validate(cfg); ve != nil {
+		t.Fatalf("expected no error for nil optional pointer, got: %v", ve)
+	}
+}
+
+func TestValidate_OptionalPointerPopulated_ValidatesDescendants(t *testing.T) {
+	cfg := optionalPointerParentConfig{
+		DB: &dbConfig{Host: "localhost"}, // port and password missing
+	}
+	ve := Validate(cfg)
+	if ve == nil {
+		t.Fatal("expected validation error for incomplete optional pointer")
+	}
+	for _, key := range []string{"db.port", "db.password"} {
+		if !slices.Contains(ve.Missing, key) {
+			t.Errorf("expected missing key %q, got: %v", key, ve.Missing)
+		}
+	}
+}
+
+func TestValidate_OptionalSliceZero_NotReported(t *testing.T) {
+	cfg := optionalSliceConfig{Name: "x"}
+	if ve := Validate(cfg); ve != nil {
+		t.Fatalf("expected no error for zero optional slice, got: %v", ve)
+	}
+}
+
+func TestValidate_OptionalMapZero_NotReported(t *testing.T) {
+	cfg := optionalMapConfig{Name: "x"}
+	if ve := Validate(cfg); ve != nil {
+		t.Fatalf("expected no error for zero optional map, got: %v", ve)
 	}
 }
 

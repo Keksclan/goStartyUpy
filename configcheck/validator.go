@@ -136,8 +136,24 @@ func validateStruct(v reflect.Value, prefix string, ve *ValidationError) {
 		fv := v.Field(i)
 
 		// Check the required tag — default is true.
+		// When required:"false", skip only if the field is actually
+		// absent/zero-valued. If it is present/non-zero, fall through
+		// so that any required descendants are still validated.
 		if tag, ok := field.Tag.Lookup("required"); ok && tag == "false" {
-			continue
+			switch fv.Kind() {
+			case reflect.Ptr:
+				if fv.IsNil() {
+					continue
+				}
+			case reflect.Slice, reflect.Map:
+				if fv.IsNil() || fv.Len() == 0 {
+					continue
+				}
+			default:
+				if fv.IsZero() {
+					continue
+				}
+			}
 		}
 
 		// Recurse into nested structs.
