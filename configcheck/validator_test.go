@@ -352,21 +352,19 @@ func TestFormatValidationError_OtherError(t *testing.T) {
 	}
 }
 
-// --- Kim Easter Egg test ---------------------------------------------------
+// --- Easter Egg tests ------------------------------------------------------
 
-func TestValidationError_KimEasterEgg(t *testing.T) {
+func TestValidationError_ErrorIsDeterministic(t *testing.T) {
 	ve := &ValidationError{Missing: []string{"some.key"}}
 
 	const kimPhrase = "Kim mag dich nicht"
-	const iterations = 50_000
 
-	kimCount := 0
-	for range iterations {
+	// Error() must never contain the Easter egg message.
+	for range 1000 {
 		s := ve.Error()
 		if contains(s, kimPhrase) {
-			kimCount++
+			t.Fatal("Error() must not contain the Easter egg message")
 		}
-		// Die reguläre Fehlermeldung muss immer enthalten sein.
 		if !contains(s, "Config validation failed") {
 			t.Fatal("error string must always contain 'Config validation failed'")
 		}
@@ -374,17 +372,13 @@ func TestValidationError_KimEasterEgg(t *testing.T) {
 			t.Fatal("error string must always contain the missing key")
 		}
 	}
+}
 
-	// Erwartung bei 1:500 → ~100 Treffer bei 50000 Durchläufen.
-	// Wir prüfen nur, dass es mindestens einmal vorkommt und nicht immer.
-	if kimCount == 0 {
-		t.Errorf("expected Kim easter egg to appear at least once in %d iterations, got 0", iterations)
+func TestShowEasterEgg(t *testing.T) {
+	msg := ShowEasterEgg()
+	if !contains(msg, "Kim mag dich nicht") {
+		t.Fatalf("expected Easter egg message, got: %q", msg)
 	}
-	if kimCount == iterations {
-		t.Errorf("expected Kim easter egg NOT to appear every time (%d/%d)", kimCount, iterations)
-	}
-
-	t.Logf("Kim easter egg appeared %d/%d times (expected ~%d)", kimCount, iterations, iterations/500)
 }
 
 // helper

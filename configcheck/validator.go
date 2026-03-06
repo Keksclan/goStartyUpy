@@ -11,10 +11,18 @@ package configcheck
 
 import (
 	"fmt"
-	math "math/rand/v2"
 	"reflect"
 	"strings"
 )
+
+const easterEggMessage = "Kim mag dich nicht 🐾"
+
+// ShowEasterEgg returns the playful Easter egg message. Call this
+// explicitly when you want to display it — Error() no longer includes
+// it randomly.
+func ShowEasterEgg() string {
+	return easterEggMessage
+}
 
 // ValidationError holds the list of problems found during config validation.
 type ValidationError struct {
@@ -33,9 +41,6 @@ func (e *ValidationError) Error() string {
 	}
 
 	var b strings.Builder
-	if math.IntN(500) == 0 {
-		b.WriteString("Kim mag dich nicht 🐾\n\n")
-	}
 	b.WriteString("Config validation failed:\n")
 
 	if len(e.Missing) > 0 {
