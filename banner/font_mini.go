@@ -56,6 +56,9 @@ var miniFont = map[rune]glyph3{
 // renderMiniText renders the input string as multi-line ASCII art using miniFont.
 func renderMiniText(input string) []string {
 	normalized := normalizeBigInput(input)
+	if normalized == "" {
+		normalized = " "
+	}
 
 	rows := make([]strings.Builder, miniHeight)
 	for i, r := range normalized {
