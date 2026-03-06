@@ -51,7 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `SpringLikeBanner` and default `"spring"` style no longer display a version/env suffix by default.
 - Banner header suffix (e.g., `(staging)`) is now only shown if the environment was sourced from the `GO_STARTYUPY_ENV` environment variable.
 - Documentation aligned to use `master` as the default branch.
-- LICENSE updated to "MIT License with Attribution Requirement" (matching goConfy).
+- LICENSE updated to standard MIT License (OSI-approved) — no attribution requirement.
 - `DefaultBanner` now returns a Spring Boot–style wordmark banner instead of
   the box banner. Use `BoxBanner` or `BannerStyle: "box"` for the old style.
 - Default banner style changed from box to `"spring"`.
