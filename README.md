@@ -1,16 +1,32 @@
+<div align="center">
+
 # goStartyUpy
 
-> **Zero-dependency Go library for production-ready startup banners with build metadata, runtime information, and structured health checks.**
+**Zero-dependency Go library for production-ready startup banners with build metadata, runtime information, and structured health checks.**
 
-goStartyUpy is a reusable Go module that renders a clearly structured, deterministic startup banner when any Go service starts. It combines build metadata (version, commit, branch, etc.), runtime information (Go version, OS/Arch, PID, etc.), and optional dependency checks (SQL, TCP, HTTP, Redis, etc.) into a single, instantly readable console output.
+[![Go Reference](https://pkg.go.dev/badge/github.com/keksclan/goStartyUpy.svg)](https://pkg.go.dev/github.com/keksclan/goStartyUpy)
+[![Go Report Card](https://goreportcard.com/badge/github.com/keksclan/goStartyUpy)](https://goreportcard.com/report/github.com/keksclan/goStartyUpy)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/Keksclan/goStartyUpy)](https://github.com/Keksclan/goStartyUpy/blob/master/go.mod)
+[![License](https://img.shields.io/github/license/Keksclan/goStartyUpy)](https://github.com/Keksclan/goStartyUpy/blob/master/LICENSE)
+[![Release](https://img.shields.io/github/v/release/Keksclan/goStartyUpy)](https://github.com/Keksclan/goStartyUpy/releases)
 
-**No external dependencies.** Everything is based exclusively on the Go standard library (`stdlib`). The module adds exactly **zero** entries to your `go.sum`.
+<!-- TODO: Add CI badge when GitHub Actions workflow is configured -->
+<!-- [![CI](https://github.com/Keksclan/goStartyUpy/actions/workflows/ci.yml/badge.svg)](https://github.com/Keksclan/goStartyUpy/actions/workflows/ci.yml) -->
+
+</div>
 
 ---
 
-## Tags / Topics
+### Why goStartyUpy?
 
-`golang` · `go-library` · `banner` · `startup-banner` · `cli` · `microservices` · `health-check` · `startup-checks` · `zero-dependencies` · `devops` · `ascii-art` · `build-metadata` · `spring-boot-style` · `production-ready` · `deterministic`
+goStartyUpy gives every Go service a **Spring Boot–style startup banner** — instantly showing build metadata, runtime info, and dependency health in one glance.
+
+🎨 **6 Banner Styles** — Spring, Classic, Box, Mini, Block, or your own ASCII art \
+🔧 **Build Metadata** — Version, commit, branch, build time — injected via `-ldflags` \
+🖥️ **Runtime Info** — Go version, OS/Arch, PID — captured automatically \
+✅ **Health Checks** — SQL, TCP, HTTP, Redis — parallel or sequential, with timeout \
+📦 **Zero Dependencies** — Pure `stdlib`. Adds nothing to your `go.sum` \
+🛡️ **Panic-Safe & Deterministic** — Stable output, no side effects, all errors caught
 
 ---
 
@@ -840,7 +856,9 @@ The `example/` directory contains runnable programs for various use cases:
 |---------|-------------|----------|
 | `example/` | Full demo: Custom checks, groups, built-in checks | `make run-example` |
 | `example/simple/` | Minimal banner without checks | `go run ./example/simple/` |
+| `example/basic_start/` | Simplest possible usage — banner with defaults | `go run ./example/basic_start/` |
 | `example/custom_banner/` | Custom ASCII art as banner | `go run ./example/custom_banner/` |
+| `example/env_aware_start/` | Automatic environment detection via `GO_STARTYUPY_ENV` | `go run ./example/env_aware_start/` |
 | `example/ascii_only/` | ASCII-only mode for terminals without Unicode | `go run ./example/ascii_only/` |
 | `example/checks_demo/` | All built-in check types (SQL, TCP, HTTP, Redis) | `go run ./example/checks_demo/` |
 | `example/custom_checks/` | Function-based, boolean, and grouped checks | `go run ./example/custom_checks/` |
@@ -941,10 +959,24 @@ This project is licensed under the **MIT License with Attribution Requirement** 
 
 ---
 
+## Documentation
+
+Detailed documentation is available in the [`docs/`](docs/) directory:
+
+| Document | Description |
+|----------|-------------|
+| [`docs/architecture.md`](docs/architecture.md) | Module layout, design principles, package responsibilities, data flow |
+| [`docs/startup-flow.md`](docs/startup-flow.md) | Step-by-step rendering sequence, check execution phases |
+| [`docs/banner-system.md`](docs/banner-system.md) | Banner styles, font system, name normalization, ASCII/color modes |
+
+---
+
 ## Used by
 
 This project is used by:
 - [Keksclan](https://github.com/Keksclan) — Creator of goStartyUpy
+- Internal microservices — Production startup banners and health checks
+- Community projects — Open-source Go services using goStartyUpy for boot diagnostics
 
 ➕ **Add your project/organization here?** Open a pull request and edit [`USED_BY.md`](USED_BY.md). Rules:
 - Sort alphabetically
@@ -953,8 +985,6 @@ This project is used by:
 
 ---
 
-## Tags / Topics
-
-The following tags describe this project and can be used as GitHub topics:
+## Topics
 
 `golang` · `go-library` · `banner` · `startup-banner` · `cli` · `microservices` · `health-check` · `startup-checks` · `zero-dependencies` · `devops` · `ascii-art` · `build-metadata` · `spring-boot-style` · `production-ready` · `deterministic`

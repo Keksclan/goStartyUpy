@@ -20,12 +20,24 @@ var (
 )
 
 // BuildInfo holds the build metadata for the running binary.
+// It is created via [CurrentBuildInfo] which reads the link-time variables
+// and runtime values into a single snapshot.
 type BuildInfo struct {
-	Version   string
+	// Version is the semantic version or git-describe output (e.g. "v1.2.3").
+	// Defaults to "dev" when not set via -ldflags.
+	Version string
+	// BuildTime is the UTC build timestamp in RFC 3339 format.
+	// Defaults to "unknown" when not set via -ldflags.
 	BuildTime string
-	Commit    string
-	Branch    string
-	Dirty     string
+	// Commit is the short git commit hash of the source tree.
+	// Defaults to "unknown" when not set via -ldflags.
+	Commit string
+	// Branch is the git branch the binary was built from.
+	// Defaults to "unknown" when not set via -ldflags.
+	Branch string
+	// Dirty is "true" when the working tree had uncommitted changes
+	// at build time, "false" otherwise.
+	Dirty string
 }
 
 // CurrentBuildInfo returns a BuildInfo snapshot populated from the
