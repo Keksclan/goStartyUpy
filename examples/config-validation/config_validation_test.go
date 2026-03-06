@@ -2,6 +2,7 @@ package main
 
 import (
 	"slices"
+	"strings"
 	"testing"
 
 	goconfy "github.com/keksclan/goConfy"
@@ -201,21 +202,8 @@ func TestInvalidConfig_ErrorMessageContainsKeys(t *testing.T) {
 
 	msg := checkErr.Error()
 	for _, key := range []string{"database.port", "database.password", "redis.address"} {
-		if !containsSubstring(msg, key) {
+		if !strings.Contains(msg, key) {
 			t.Errorf("error message should mention %q, got:\n%s", key, msg)
 		}
 	}
-}
-
-func containsSubstring(s, sub string) bool {
-	return len(s) >= len(sub) && searchString(s, sub)
-}
-
-func searchString(s, sub string) bool {
-	for i := range len(s) - len(sub) + 1 {
-		if s[i:i+len(sub)] == sub {
-			return true
-		}
-	}
-	return false
 }

@@ -3,6 +3,7 @@ package configcheck
 import (
 	"fmt"
 	"slices"
+	"strings"
 	"testing"
 	"time"
 )
@@ -240,7 +241,7 @@ func TestValidationError_Error(t *testing.T) {
 		t.Fatal("expected non-empty error string")
 	}
 	for _, key := range ve.Missing {
-		if !contains(s, key) {
+		if !strings.Contains(s, key) {
 			t.Errorf("error string should contain %q", key)
 		}
 	}
@@ -340,14 +341,14 @@ func TestFormatValidationError_Nil(t *testing.T) {
 func TestFormatValidationError_ValidationError(t *testing.T) {
 	ve := &ValidationError{Missing: []string{"a.b"}}
 	s := FormatValidationError(ve)
-	if !contains(s, "a.b") {
+	if !strings.Contains(s, "a.b") {
 		t.Fatalf("expected formatted output to contain 'a.b', got: %q", s)
 	}
 }
 
 func TestFormatValidationError_OtherError(t *testing.T) {
 	s := FormatValidationError(fmt.Errorf("boom"))
-	if !contains(s, "boom") {
+	if !strings.Contains(s, "boom") {
 		t.Fatalf("expected formatted output to contain 'boom', got: %q", s)
 	}
 }
@@ -362,13 +363,13 @@ func TestValidationError_ErrorIsDeterministic(t *testing.T) {
 	// Error() must never contain the Easter egg message.
 	for range 1000 {
 		s := ve.Error()
-		if contains(s, kimPhrase) {
+		if strings.Contains(s, kimPhrase) {
 			t.Fatal("Error() must not contain the Easter egg message")
 		}
-		if !contains(s, "Config validation failed") {
+		if !strings.Contains(s, "Config validation failed") {
 			t.Fatal("error string must always contain 'Config validation failed'")
 		}
-		if !contains(s, "some.key") {
+		if !strings.Contains(s, "some.key") {
 			t.Fatal("error string must always contain the missing key")
 		}
 	}
@@ -376,21 +377,7 @@ func TestValidationError_ErrorIsDeterministic(t *testing.T) {
 
 func TestShowEasterEgg(t *testing.T) {
 	msg := ShowEasterEgg()
-	if !contains(msg, "Kim mag dich nicht") {
+	if !strings.Contains(msg, "Kim mag dich nicht") {
 		t.Fatalf("expected Easter egg message, got: %q", msg)
 	}
-}
-
-// helper
-func contains(s, substr string) bool {
-	return len(s) >= len(substr) && searchString(s, substr)
-}
-
-func searchString(s, sub string) bool {
-	for i := range len(s) - len(sub) + 1 {
-		if s[i:i+len(sub)] == sub {
-			return true
-		}
-	}
-	return false
 }
