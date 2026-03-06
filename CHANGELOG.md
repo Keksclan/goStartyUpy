@@ -57,8 +57,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   all Options fields, BuildInfo struct, Render functions, Check system details,
   environment auto-detection behavior, API stability guarantees, and complete
   code examples for every feature.
-- Minimum Go version in `go.mod` adjusted from 1.26 to 1.24 (actual minimum
-  required by the codebase).
+- Minimum Go version in `go.mod` adjusted from 1.26 (typo) to 1.24 (actual
+  minimum required by the codebase).
 
 ### Fixed
 
