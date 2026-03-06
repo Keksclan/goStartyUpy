@@ -4,7 +4,7 @@ This document explains how goStartyUpy generates and renders startup banners.
 
 ## Banner Styles
 
-goStartyUpy ships with six built-in banner styles. The style is selected via `Options.BannerStyle` (default: `"spring"`). When `Options.Banner` is set to a non-empty string, the custom art is used verbatim and `BannerStyle` is ignored.
+goStartyUpy ships with five built-in banner styles. `Options.BannerStyle` selects among `"spring"` (default), `"classic"`, `"box"`, `"mini"`, and `"block"`. When `Options.Banner` is set to a non-empty string it provides a custom banner that is used verbatim, overriding `Options.BannerStyle`.
 
 ### `spring` (default)
 
