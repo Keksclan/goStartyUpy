@@ -1,0 +1,8 @@
+# Minimal valid configuration – only the required fields.
+app_name: minimal-service
+database:
+  host: localhost
+  port: 5432
+  password: secret
+redis:
+  address: localhost:6379

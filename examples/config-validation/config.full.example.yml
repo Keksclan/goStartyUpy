@@ -1,0 +1,85 @@
+# =============================================================================
+# goStartyUpy – Full Configuration Reference
+# =============================================================================
+# This file contains every user-relevant configuration option supported by
+# goStartyUpy when loaded through goConfy. Use it as a starting point for
+# your own configuration or as a quick reference for available settings.
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# Application metadata
+# ---------------------------------------------------------------------------
+
+# Human-readable name of the service (required).
+app_name: my-awesome-service
+
+# Deployment environment (e.g. "production", "staging", "development").
+environment: production
+
+# Application log level. Marked optional in the config struct.
+log_level: info
+
+# ---------------------------------------------------------------------------
+# Banner settings
+# ---------------------------------------------------------------------------
+banner:
+  # Enable ANSI color escape sequences in banner output.
+  color: true
+
+  # Force plain ASCII characters (no Unicode box-drawing).
+  ascii_only: false
+
+  # Banner rendering style when no custom banner text is provided.
+  # Supported values: "spring" (default), "classic", "box".
+  banner_style: spring
+
+  # Optional maximum line width. Lines longer than this are hard-cut.
+  # 0 means no clamping (default).
+  banner_width: 80
+
+  # Custom multi-line ASCII art banner. Leave empty to use the
+  # auto-generated style selected by banner_style.
+  custom_banner: ""
+
+  # Custom separator line between the banner and the info block.
+  # Leave empty for the default Unicode line.
+  separator: ""
+
+  # Override the first tagline below the classic-style wordmark.
+  # Defaults to "<ServiceName> <Version>".
+  tagline1: ""
+
+  # Override the second tagline below the classic-style wordmark.
+  # Defaults to "Build: <BuildTime>  Commit: <Commit>".
+  tagline2: ""
+
+  # Show the key/value detail section after the banner.
+  # Only affects "classic" style; other styles always show details.
+  show_details: true
+
+  # Additional key-value pairs printed after the standard info fields.
+  # Use this for addresses like HTTP or gRPC endpoints.
+  extra:
+    http: "0.0.0.0:8080"
+    grpc: "0.0.0.0:9090"
+
+# ---------------------------------------------------------------------------
+# Config validation
+# ---------------------------------------------------------------------------
+config_check:
+  # Enable configuration validation at startup.
+  enabled: true
+
+# ---------------------------------------------------------------------------
+# Database connection
+# ---------------------------------------------------------------------------
+database:
+  host: localhost
+  port: 5432
+  password: super-secret
+
+# ---------------------------------------------------------------------------
+# Redis connection
+# ---------------------------------------------------------------------------
+redis:
+  address: localhost:6379

@@ -831,12 +831,38 @@ configcheck.MustPassStartupCheck(configcheck.Options{
 }, log.Fatalf)
 ```
 
+### Full Configuration Reference
+
+A complete example YAML file containing **every supported configuration option** is available at:
+
+```
+examples/config-validation/config.full.example.yml
+```
+
+Use it as a starting point for your own configuration. The file includes all
+banner, config-check, and application-level settings with explanatory comments.
+
+Additional example files in the same directory:
+
+| File | Purpose |
+|------|---------|
+| `config.full.example.yml` | All supported options with comments |
+| `config.minimal.yml` | Smallest valid configuration |
+| `config_invalid.yml` | Intentionally broken config for testing |
+
+Run the example tests to verify all configs:
+
+```bash
+go test ./examples/config-validation/ -v
+```
+
 ### Best Practices
 
 - **Enable validation in all environments** — it adds negligible overhead and catches drift between config files.
 - **Use `required:"false"`** sparingly — only for truly optional fields with sensible zero-value behavior.
 - **Run validation before the banner** — so failures are visible immediately, not buried after startup output.
 - **Use goConfy's strict mode** (default) together with configcheck — goConfy rejects unknown YAML keys, configcheck catches missing ones.
+- **Keep example YAML files in sync** — the full example config acts as living documentation; update it when adding new config options.
 
 ---
 
