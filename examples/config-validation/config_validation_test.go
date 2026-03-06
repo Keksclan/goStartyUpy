@@ -35,7 +35,7 @@ func TestMinimalConfig_RunStartupCheck(t *testing.T) {
 		t.Fatalf("failed to load minimal config: %v", err)
 	}
 
-	if err := configcheck.RunStartupCheck(configcheck.Options{
+	if _, err := configcheck.RunStartupCheck(configcheck.Options{
 		Enabled: true,
 		Config:  cfg,
 	}); err != nil {
@@ -69,7 +69,7 @@ func TestFullExampleConfig_RunStartupCheck(t *testing.T) {
 		t.Fatalf("failed to load full example config: %v", err)
 	}
 
-	if err := configcheck.RunStartupCheck(configcheck.Options{
+	if _, err := configcheck.RunStartupCheck(configcheck.Options{
 		Enabled: true,
 		Config:  cfg,
 	}); err != nil {
@@ -144,7 +144,7 @@ func TestValidConfig_RunStartupCheck(t *testing.T) {
 		t.Fatalf("failed to load valid config: %v", err)
 	}
 
-	if err := configcheck.RunStartupCheck(configcheck.Options{
+	if _, err := configcheck.RunStartupCheck(configcheck.Options{
 		Enabled: true,
 		Config:  cfg,
 	}); err != nil {
@@ -192,7 +192,7 @@ func TestInvalidConfig_ErrorMessageContainsKeys(t *testing.T) {
 		t.Fatalf("failed to load invalid config: %v", err)
 	}
 
-	checkErr := configcheck.RunStartupCheck(configcheck.Options{
+	_, checkErr := configcheck.RunStartupCheck(configcheck.Options{
 		Enabled: true,
 		Config:  cfg,
 	})

@@ -269,16 +269,22 @@ func TestValidationError_HasErrors(t *testing.T) {
 // --- RunStartupCheck tests -------------------------------------------------
 
 func TestRunStartupCheck_Disabled(t *testing.T) {
-	err := RunStartupCheck(Options{Enabled: false, Config: "not even a struct"})
+	msg, err := RunStartupCheck(Options{Enabled: false, Config: "not even a struct"})
 	if err != nil {
 		t.Fatalf("expected nil when disabled, got: %v", err)
+	}
+	if msg != "" {
+		t.Fatalf("expected empty message when disabled, got: %q", msg)
 	}
 }
 
 func TestRunStartupCheck_NilConfig(t *testing.T) {
-	err := RunStartupCheck(Options{Enabled: true, Config: nil})
+	msg, err := RunStartupCheck(Options{Enabled: true, Config: nil})
 	if err == nil {
 		t.Fatal("expected error for nil config")
+	}
+	if msg != "" {
+		t.Fatalf("expected empty message on error, got: %q", msg)
 	}
 }
 
@@ -288,17 +294,56 @@ func TestRunStartupCheck_Valid(t *testing.T) {
 		Redis:    redisConfig{Address: "a"},
 		AppName:  "x",
 	}
-	err := RunStartupCheck(Options{Enabled: true, Config: cfg})
+	msg, err := RunStartupCheck(Options{Enabled: true, Config: cfg})
 	if err != nil {
 		t.Fatalf("expected nil, got: %v", err)
+	}
+	if !strings.Contains(msg, "Config Check") {
+		t.Fatalf("expected success message containing 'Config Check', got: %q", msg)
+	}
+}
+
+func TestRunStartupCheck_ValidPlain(t *testing.T) {
+	cfg := fullConfig{
+		Database: dbConfig{Host: "h", Port: 1, Password: "p"},
+		Redis:    redisConfig{Address: "a"},
+		AppName:  "x",
+	}
+	msg, err := RunStartupCheck(Options{Enabled: true, Config: cfg})
+	if err != nil {
+		t.Fatalf("expected nil, got: %v", err)
+	}
+	if !strings.Contains(msg, "[OK]") {
+		t.Fatalf("expected plain [OK] tag, got: %q", msg)
+	}
+}
+
+func TestRunStartupCheck_ValidColor(t *testing.T) {
+	cfg := fullConfig{
+		Database: dbConfig{Host: "h", Port: 1, Password: "p"},
+		Redis:    redisConfig{Address: "a"},
+		AppName:  "x",
+	}
+	msg, err := RunStartupCheck(Options{Enabled: true, Config: cfg, Color: true})
+	if err != nil {
+		t.Fatalf("expected nil, got: %v", err)
+	}
+	if !strings.Contains(msg, "✔") {
+		t.Fatalf("expected colored output with checkmark, got: %q", msg)
+	}
+	if strings.Contains(msg, "[OK]") {
+		t.Fatalf("colored output should not contain [OK] tag, got: %q", msg)
 	}
 }
 
 func TestRunStartupCheck_Invalid(t *testing.T) {
 	cfg := fullConfig{}
-	err := RunStartupCheck(Options{Enabled: true, Config: cfg})
+	msg, err := RunStartupCheck(Options{Enabled: true, Config: cfg})
 	if err == nil {
 		t.Fatal("expected error for invalid config")
+	}
+	if msg != "" {
+		t.Fatalf("expected empty message on error, got: %q", msg)
 	}
 }
 

@@ -1,9 +1,6 @@
 package configcheck
 
-import (
-	"fmt"
-	"os"
-)
+import "fmt"
 
 // Options controls whether configuration validation runs during startup.
 type Options struct {
@@ -13,39 +10,48 @@ type Options struct {
 	// Config is the configuration struct (or pointer to struct) to
 	// validate. It is typically the value returned by goConfy's Load.
 	Config any
+	// Color enables ANSI color codes in the success message. When
+	// false the returned string uses a plain-text "[OK]" tag instead.
+	Color bool
 }
 
 // RunStartupCheck validates the configuration according to opts. It
-// returns nil when validation is disabled or the configuration is valid.
-// On failure it returns a *[ValidationError] whose Error() method
-// produces a human-readable diagnostic block.
+// returns an empty string and nil error when validation is disabled.
+// When the configuration is valid it returns a human-readable success
+// message (colored or plain depending on [Options.Color]) and a nil
+// error. On failure it returns an empty string and a *[ValidationError]
+// whose Error() method produces a human-readable diagnostic block.
 //
-// When validation passes, a green checkmark line is printed to stdout
-// so the operator gets immediate visual feedback (similar to the
-// [OK] tags produced by the checks package).
-func RunStartupCheck(opts Options) error {
+// The caller decides where (and whether) to print the success message,
+// consistent with [banner.Render] which also returns a string.
+func RunStartupCheck(opts Options) (string, error) {
 	if !opts.Enabled {
-		return nil
+		return "", nil
 	}
 	if opts.Config == nil {
-		return &ValidationError{
+		return "", &ValidationError{
 			Errors: []string{"configuration is nil"},
 		}
 	}
 	ve := Validate(opts.Config)
 	if ve != nil {
-		return ve
+		return "", ve
 	}
-	printSuccess(os.Stdout)
-	return nil
+	return formatSuccess(opts.Color), nil
 }
 
 // MustPassStartupCheck is like [RunStartupCheck] but calls the provided
-// fatalf function (typically log.Fatalf) when validation fails. It is a
-// convenience wrapper for use in main functions.
+// fatalf function (typically log.Fatalf) when validation fails. On
+// success the message is printed to stdout for operator feedback. It is
+// a convenience wrapper for use in main functions.
 func MustPassStartupCheck(opts Options, fatalf func(string, ...any)) {
-	if err := RunStartupCheck(opts); err != nil {
+	msg, err := RunStartupCheck(opts)
+	if err != nil {
 		fatalf("startup config check failed:\n%s", err)
+		return
+	}
+	if msg != "" {
+		fmt.Print(msg)
 	}
 }
 
@@ -58,24 +64,13 @@ const (
 	successMessage = "Config Check"
 )
 
-// printSuccess writes a green checkmark line to w.
-func printSuccess(w *os.File) {
-	if fileSupportsColor(w) {
-		fmt.Fprintf(w, "  %s%s%s  %s%s%s\n", greenBold, checkMark, reset, greenBold, successMessage, reset)
-	} else {
-		fmt.Fprintf(w, "  [OK]  %s\n", successMessage)
+// formatSuccess returns a success indicator line. When color is true
+// the output contains ANSI escape sequences; otherwise plain text.
+func formatSuccess(color bool) string {
+	if color {
+		return fmt.Sprintf("  %s%s%s  %s%s%s\n", greenBold, checkMark, reset, greenBold, successMessage, reset)
 	}
-}
-
-// fileSupportsColor reports whether the given file is a terminal that
-// likely supports ANSI colors. On non-TTY outputs (pipes, files) it
-// returns false so we fall back to plain text.
-func fileSupportsColor(f *os.File) bool {
-	info, err := f.Stat()
-	if err != nil {
-		return false
-	}
-	return info.Mode()&os.ModeCharDevice != 0
+	return fmt.Sprintf("  [OK]  %s\n", successMessage)
 }
 
 // FormatValidationError returns a formatted string suitable for
