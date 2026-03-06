@@ -854,7 +854,7 @@ Additional example files in the same directory:
 Run the example tests to verify all configs:
 
 ```bash
-go test ./examples/config-validation/ -v
+cd examples/config-validation && go test ./... -v
 ```
 
 ### Best Practices
