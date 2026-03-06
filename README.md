@@ -1119,11 +1119,11 @@ The project includes tests for:
 
 ## License
 
-This project is licensed under the **MIT License with Attribution Requirement** — see [LICENSE](LICENSE) for the full text.
+This project is licensed under the **MIT License** — see [LICENSE](LICENSE) for the full text.
 
 **Summary:**
-- Open-source usage: Free, attribution optional but appreciated.
-- Commercial/corporate usage: MIT-compatible, attribution mention required.
+- Open-source usage: Free under the MIT License, no attribution required.
+- Commercial/corporate usage: MIT-permissive, no attribution required.
 
 ---
 
