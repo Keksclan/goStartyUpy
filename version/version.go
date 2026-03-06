@@ -12,4 +12,4 @@ package version
 //
 // This value is set at source level and does not change at link time.
 // For the service build version injected via ldflags, see banner.Version.
-const ModuleVersion = "0.1.0"
+const ModuleVersion = "0.2.0"

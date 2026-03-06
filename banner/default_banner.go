@@ -21,8 +21,12 @@ func resolveBanner(opts Options) string {
 			art = ClassicLikeBanner(opts.ServiceName, opts.ASCIIOnly)
 		case "box":
 			art = BoxBanner(opts.ServiceName, opts.ASCIIOnly)
+		case "mini":
+			art = MiniBanner(opts.ServiceName, opts.ASCIIOnly)
+		case "block":
+			art = BlockBanner(opts.ServiceName, opts.ASCIIOnly)
 		default: // "spring"
-			art = SpringLikeBanner(opts.ServiceName, opts.ASCIIOnly)
+			art = springLikeBannerInternal(opts.ServiceName, opts.Environment, opts.environmentFromEnv, opts.ASCIIOnly)
 		}
 	}
 	if opts.BannerWidth > 0 {

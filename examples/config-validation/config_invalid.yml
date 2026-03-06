@@ -1,0 +1,7 @@
+app_name: broken-service
+
+database:
+  host: localhost
+  # port and password are intentionally missing
+
+# redis section is entirely missing

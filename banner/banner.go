@@ -7,12 +7,16 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/keksclan/goStartyUpy/checks"
 	"maps"
+
+	"github.com/keksclan/goStartyUpy/checks"
 )
 
 // defaultSeparator is a Unicode box-drawing line used between banner and info.
 const defaultSeparator = "════════════════════════════════════════════════════════════"
+
+// EnvVarEnvironment is the environment variable name for environment detection.
+const EnvVarEnvironment = "GO_STARTYUPY_ENV"
 
 // Render produces a startup message string containing the ASCII banner,
 // a separator, and aligned key-value metadata. The output always ends with
@@ -27,6 +31,14 @@ func RenderWithChecks(opts Options, info BuildInfo, results []checks.Result) str
 	var b strings.Builder
 	c := opts.Color
 
+	// --- environment detection ---
+	if opts.Environment == "" {
+		if env := os.Getenv(EnvVarEnvironment); env != "" {
+			opts.Environment = env
+			opts.environmentFromEnv = true
+		}
+	}
+
 	// --- banner art ---
 	art := resolveBanner(opts)
 	// Ensure exactly one trailing newline after the art block.
@@ -40,6 +52,12 @@ func RenderWithChecks(opts Options, info BuildInfo, results []checks.Result) str
 		b.WriteString(colorize(t1, ansiYellow, c))
 		b.WriteByte('\n')
 		b.WriteString(colorize(t2, ansiDim, c))
+		b.WriteByte('\n')
+	}
+
+	// --- easter egg: Lars birthday ---
+	if isLarsBirthday() {
+		b.WriteString(colorize(larsMessage, ansiYellow+ansiBold, c))
 		b.WriteByte('\n')
 	}
 

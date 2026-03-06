@@ -7,8 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-03-06
+
 ### Added
 
+- `BannerStyle: "mini"` — compact 3-row ASCII wordmark.
+- `BannerStyle: "block"` — thick 5-row ASCII wordmark using `#`.
+- `MiniBanner` and `BlockBanner` public functions for direct generation.
+- `GO_STARTYUPY_ENV` environment variable support for automatic environment detection.
+- `Options.environmentFromEnv` unexported internal flag to track environment source.
+- `USED_BY.md` registry for users and organizations.
+- README tags/topics section.
 - Built-in big ASCII font for spring-like banners using an "underscore / pipe /
   slash" style (`banner/font_big.go`). Supports A–Z, 0–9, `-`, `_`, space, and
   a `?` fallback glyph. No external dependencies.
@@ -39,9 +48,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `SpringLikeBanner` and default `"spring"` style no longer display a version/env suffix by default.
+- Banner header suffix (e.g., `(staging)`) is now only shown if the environment was sourced from the `GO_STARTYUPY_ENV` environment variable.
+- Documentation aligned to use `master` as the default branch.
+- LICENSE updated to standard MIT License (OSI-approved) — no attribution requirement.
 - `DefaultBanner` now returns a Spring Boot–style wordmark banner instead of
   the box banner. Use `BoxBanner` or `BannerStyle: "box"` for the old style.
 - Default banner style changed from box to `"spring"`.
+- README massively expanded with comprehensive German documentation covering
+  all Options fields, BuildInfo struct, Render functions, Check system details,
+  environment auto-detection behavior, API stability guarantees, and complete
+  code examples for every feature.
+- Minimum Go version in `go.mod` adjusted from 1.26 (typo) to 1.24 (actual
+  minimum required by the codebase).
 
 ### Fixed
 
@@ -78,5 +97,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README with installation, quickstart, API reference, and release process.
 - `.gitignore`, `.editorconfig`, `.gitattributes` for repository hygiene.
 
-[Unreleased]: https://github.com/keksclan/goStartyUpy/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/keksclan/goStartyUpy/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/keksclan/goStartyUpy/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/keksclan/goStartyUpy/releases/tag/v0.1.0

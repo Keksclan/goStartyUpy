@@ -1,0 +1,10 @@
+app_name: demo-service
+log_level: info
+
+database:
+  host: localhost
+  port: 5432
+  password: secret
+
+redis:
+  address: localhost:6379

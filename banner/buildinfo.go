@@ -11,7 +11,7 @@ var (
 	Version = "dev"
 	// BuildTime is the UTC timestamp of when the binary was built.
 	BuildTime = "unknown"
-	// Commit is the full git commit hash of the source tree.
+	// Commit is the short git commit hash of the source tree.
 	Commit = "unknown"
 	// Branch is the git branch the binary was built from.
 	Branch = "unknown"
@@ -20,16 +20,30 @@ var (
 )
 
 // BuildInfo holds the build metadata for the running binary.
+// It is created via [CurrentBuildInfo] which snapshots only the
+// package-level link-time variables (not runtime values).
 type BuildInfo struct {
-	Version   string
+	// Version is the semantic version or git-describe output (e.g. "v1.2.3").
+	// Defaults to "dev" when not set via -ldflags.
+	Version string
+	// BuildTime is the build timestamp in RFC 3339 format as provided via
+	// -ldflags. Defaults to "unknown" when not set.
 	BuildTime string
-	Commit    string
-	Branch    string
-	Dirty     string
+	// Commit is the short git commit hash of the source tree as provided
+	// by the package-level variable. Defaults to "unknown" when not set
+	// via -ldflags.
+	Commit string
+	// Branch is the git branch the binary was built from.
+	// Defaults to "unknown" when not set via -ldflags.
+	Branch string
+	// Dirty is "true" when the working tree had uncommitted changes
+	// at build time, "false" otherwise.
+	Dirty string
 }
 
-// CurrentBuildInfo returns a BuildInfo snapshot populated from the
-// link-time variables.
+// CurrentBuildInfo returns a [BuildInfo] snapshot populated exclusively from
+// the package-level link-time variables. It does not capture any runtime
+// values.
 func CurrentBuildInfo() BuildInfo {
 	return BuildInfo{
 		Version:   Version,

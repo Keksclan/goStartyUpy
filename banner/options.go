@@ -48,4 +48,9 @@ type Options struct {
 	// the details are hidden). Only affects "classic" style; other styles
 	// always show details.
 	ShowDetails *bool
+	// environmentFromEnv is an internal flag (additive) that indicates
+	// whether the Environment value was sourced from an environment
+	// variable at runtime. When true, the banner header may display
+	// the environment as a suffix.
+	environmentFromEnv bool
 }
