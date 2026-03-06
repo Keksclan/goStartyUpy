@@ -72,7 +72,7 @@ func main() {
 
 	// Run goStartyUpy config validation.
 	configcheck.MustPassStartupCheck(configcheck.Options{
-		Enabled: cfg.ConfigCheck.Enabled,
+		Enabled: true,
 		Config:  cfg,
 	}, log.Fatalf)
 
