@@ -11,6 +11,7 @@ package configcheck
 
 import (
 	"fmt"
+	math "math/rand/v2"
 	"reflect"
 	"strings"
 )
@@ -32,6 +33,9 @@ func (e *ValidationError) Error() string {
 	}
 
 	var b strings.Builder
+	if math.IntN(500) == 0 {
+		b.WriteString("Kim mag dich nicht 🐾\n\n")
+	}
 	b.WriteString("Config validation failed:\n")
 
 	if len(e.Missing) > 0 {

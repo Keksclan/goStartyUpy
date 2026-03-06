@@ -352,6 +352,41 @@ func TestFormatValidationError_OtherError(t *testing.T) {
 	}
 }
 
+// --- Kim Easter Egg test ---------------------------------------------------
+
+func TestValidationError_KimEasterEgg(t *testing.T) {
+	ve := &ValidationError{Missing: []string{"some.key"}}
+
+	const kimPhrase = "Kim mag dich nicht"
+	const iterations = 50_000
+
+	kimCount := 0
+	for range iterations {
+		s := ve.Error()
+		if contains(s, kimPhrase) {
+			kimCount++
+		}
+		// Die reguläre Fehlermeldung muss immer enthalten sein.
+		if !contains(s, "Config validation failed") {
+			t.Fatal("error string must always contain 'Config validation failed'")
+		}
+		if !contains(s, "some.key") {
+			t.Fatal("error string must always contain the missing key")
+		}
+	}
+
+	// Erwartung bei 1:500 → ~100 Treffer bei 50000 Durchläufen.
+	// Wir prüfen nur, dass es mindestens einmal vorkommt und nicht immer.
+	if kimCount == 0 {
+		t.Errorf("expected Kim easter egg to appear at least once in %d iterations, got 0", iterations)
+	}
+	if kimCount == iterations {
+		t.Errorf("expected Kim easter egg NOT to appear every time (%d/%d)", kimCount, iterations)
+	}
+
+	t.Logf("Kim easter egg appeared %d/%d times (expected ~%d)", kimCount, iterations, iterations/500)
+}
+
 // helper
 func contains(s, substr string) bool {
 	return len(s) >= len(substr) && searchString(s, substr)

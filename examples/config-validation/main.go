@@ -42,18 +42,18 @@ type DBConfig struct {
 func main() {
 	// Load configuration from YAML using goConfy.
 	cfg, err := goconfy.Load[AppConfig](
-		goconfy.WithFile("examples/config-validation/config.yml"),
+		goconfy.WithFile("examples/config-validation/config_invalid.yml"),
 	)
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
 	}
-
-	// Run goStartyUpy config validation.
-	configcheck.MustPassStartupCheck(configcheck.Options{
-		Enabled: true,
-		Config:  cfg,
-	}, log.Fatalf)
-
+	for i := 0; i < 500; i++ {
+		// Run goStartyUpy config validation.
+		configcheck.MustPassStartupCheck(configcheck.Options{
+			Enabled: true,
+			Config:  cfg,
+		}, log.Fatalf)
+	}
 	// Print the startup banner (only reached when config is valid).
 	info := banner.CurrentBuildInfo()
 	fmt.Print(banner.Render(banner.Options{
