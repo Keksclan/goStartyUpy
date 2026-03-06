@@ -34,7 +34,7 @@ func RenderWithChecks(opts Options, info BuildInfo, results []checks.Result) str
 	if opts.Environment == "" {
 		if env := os.Getenv(EnvVarEnvironment); env != "" {
 			opts.Environment = env
-			opts.EnvironmentFromEnv = true
+			opts.environmentFromEnv = true
 		}
 	}
 

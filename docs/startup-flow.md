@@ -15,7 +15,7 @@ The caller controls both phases explicitly. goStartyUpy never performs I/O on it
 
 ### Step 1 — Environment Detection
 
-If `Options.Environment` is empty, the renderer checks `os.Getenv("GO_STARTYUPY_ENV")`. When the variable is set, its value becomes the environment and `EnvironmentFromEnv` is set to `true` internally.
+If `Options.Environment` is empty, the renderer checks `os.Getenv("GO_STARTYUPY_ENV")`. When the variable is set, its value becomes the environment and the unexported `environmentFromEnv` flag is set to `true` internally.
 
 ```go
 // Automatic detection:

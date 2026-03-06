@@ -26,7 +26,7 @@ func resolveBanner(opts Options) string {
 		case "block":
 			art = BlockBanner(opts.ServiceName, opts.ASCIIOnly)
 		default: // "spring"
-			art = springLikeBannerInternal(opts.ServiceName, opts.Environment, opts.EnvironmentFromEnv, opts.ASCIIOnly)
+			art = springLikeBannerInternal(opts.ServiceName, opts.Environment, opts.environmentFromEnv, opts.ASCIIOnly)
 		}
 	}
 	if opts.BannerWidth > 0 {

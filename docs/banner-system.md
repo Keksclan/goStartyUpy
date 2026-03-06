@@ -147,7 +147,7 @@ The banner can display the deployment environment (e.g., "production", "staging"
 1. **Explicit**: Set `Options.Environment` directly in code.
 2. **Automatic**: Leave `Options.Environment` empty; the renderer reads `GO_STARTYUPY_ENV` at render time.
 
-When the environment is detected from the environment variable, `EnvironmentFromEnv` is set to `true`, which may affect how the environment is displayed in certain styles.
+When the environment is detected from the environment variable, the unexported `environmentFromEnv` flag is set to `true`, which may affect how the environment is displayed in certain styles.
 
 ## Width Clamping
 

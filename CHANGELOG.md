@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `BannerStyle: "block"` — thick 5-row ASCII wordmark using `#`.
 - `MiniBanner` and `BlockBanner` public functions for direct generation.
 - `GO_STARTYUPY_ENV` environment variable support for automatic environment detection.
-- `Options.EnvironmentFromEnv` internal flag to track environment source.
+- `Options.environmentFromEnv` unexported internal flag to track environment source.
 - `USED_BY.md` registry for users and organizations.
 - README tags/topics section.
 - Built-in big ASCII font for spring-like banners using an "underscore / pipe /

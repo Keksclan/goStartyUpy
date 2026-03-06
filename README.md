@@ -492,11 +492,11 @@ The `banner.Options` struct controls all aspects of banner rendering. Each field
 | `Tagline2` | `string` | `""` | Overrides the second tagline in classic style. If empty, the default is generated. |
 | `ShowDetails` | `*bool` | `nil` | Controls display of the details block in classic style. `nil` = show, `&false` = hide. |
 
-**Internal Fields** (not set directly by the user):
+**Internal Fields** (unexported; not part of the public API):
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `EnvironmentFromEnv` | `bool` | Set internally to `true` when the environment originates from `GO_STARTYUPY_ENV`. Controls the suffix display. |
+| `environmentFromEnv` | `bool` | Set internally to `true` when the environment originates from `GO_STARTYUPY_ENV`. Controls the suffix display. |
 
 ---
 
